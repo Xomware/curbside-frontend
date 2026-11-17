@@ -18,3 +18,9 @@
   font-size: 13px;
   text-align: center;
 }
+
+.deleted {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}

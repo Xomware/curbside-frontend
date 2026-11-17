@@ -1,10 +1,20 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  computed,
+  effect,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
-import { AccountStore, Identity } from '../../account/account-store';
+import { AccountStore, DELETED, Identity } from '../../account/account-store';
 import { failureMessage } from '../../account/messages';
+import { ApiError } from '../../api/api';
 import { AuthSession } from '../../auth/auth-session';
-import { Provider, claims } from '../../auth/cognito';
+import { Provider, claims, providerOf } from '../../auth/cognito';
 import { ProviderButton } from '../../ui/provider-button';
 
 const PROVIDERS: Record<Identity['provider'], Provider> = {
@@ -21,13 +31,24 @@ const PROVIDERS: Record<Identity['provider'], Provider> = {
 })
 export class SettingsPage {
   private readonly auth = inject(AuthSession);
+  private readonly query = inject(ActivatedRoute).snapshot.queryParamMap;
   protected readonly store = inject(AccountStore);
+
+  /** `confirm` also follows the re-auth round trip, so nothing is deleted without a click after it. */
+  protected readonly deleteStep = signal<'idle' | 'confirm' | 'reauth'>(
+    this.query.get('delete') === 'confirm' ? 'confirm' : 'idle',
+  );
+  private readonly deleteHeading = viewChild<ElementRef<HTMLElement>>('deleteHeading');
 
   protected readonly busy = signal(false);
   protected readonly error = signal<string | null>(null);
-  protected readonly status = signal(
-    inject(ActivatedRoute).snapshot.queryParamMap.has('linked') ? 'Sign-in added.' : '',
-  );
+  protected readonly status = signal(this.query.has('linked') ? 'Sign-in added.' : '');
+
+  constructor() {
+    effect(() => {
+      if (this.deleteStep() !== 'idle') this.deleteHeading()?.nativeElement.focus();
+    });
+  }
 
   protected readonly identities = computed(() => this.store.account()?.identities ?? []);
   protected readonly currentSub = computed(() => {
@@ -37,6 +58,13 @@ export class SettingsPage {
   protected readonly unlinked = computed(() => {
     const linked = new Set(this.identities().map((i) => PROVIDERS[i.provider]));
     return (['SignInWithApple', 'Google'] as Provider[]).filter((p) => !linked.has(p));
+  });
+
+  /** The server wants Apple whenever an Apple sign-in is linked, else any fresh sign-in. */
+  protected readonly reauthProvider = computed<Provider>(() => {
+    if (this.identities().some((i) => i.provider === 'apple')) return 'SignInWithApple';
+    const id = this.auth.idToken();
+    return id ? providerOf(id) : 'Google';
   });
 
   protected label(identity: Identity): string {
@@ -74,6 +102,26 @@ export class SettingsPage {
       a.click();
       URL.revokeObjectURL(url);
       this.status.set('Export downloaded.');
+    });
+  }
+
+  protected async reauth(): Promise<void> {
+    this.busy.set(true);
+    await this.auth.begin(this.reauthProvider(), 'reauth');
+  }
+
+  protected async remove(): Promise<void> {
+    await this.run(async () => {
+      try {
+        sessionStorage.setItem(DELETED, JSON.stringify(await this.store.remove()));
+      } catch (error) {
+        if (!(error instanceof ApiError) || error.code !== 'reauth_required') throw error;
+        this.deleteStep.set('reauth');
+        return;
+      }
+      // Local sign-out, not logOut(): the Cognito logout reloads the app and would wipe the one-time notice
+      // the shell's redirect to /sign-in shows. The Cognito users are deleted, so their cookie is inert.
+      this.auth.signOut();
     });
   }
 

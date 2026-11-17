@@ -36,9 +36,9 @@ describe('SettingsPage', () => {
   const calls = (method: string) =>
     fetchMock.mock.calls.filter(([, init]) => init?.method === method);
 
-  async function open(identities: Account['identities']) {
+  async function open(identities: Account['identities'], url = '/settings') {
     fetchMock.mockResolvedValueOnce(json(200, { data: account(identities) }));
-    harness = await RouterTestingHarness.create('/settings');
+    harness = await RouterTestingHarness.create(url);
     await vi.waitFor(() => {
       harness.detectChanges();
       expect(el()?.querySelector('h1')?.textContent).toContain('Settings');
@@ -144,6 +144,74 @@ describe('SettingsPage', () => {
     await vi.waitFor(() => {
       harness.detectChanges();
       expect(el().querySelector('[role=alert]')?.textContent).toContain("couldn't do that");
+    });
+  });
+
+  describe('delete', () => {
+    it('asks for a click before deleting', async () => {
+      await open([google]);
+
+      button('Delete account')?.click();
+      harness.detectChanges();
+
+      expect(calls('DELETE')).toHaveLength(0);
+      expect(button('Delete for good')).toBeDefined();
+      expect(document.activeElement?.textContent).toContain('for good?');
+    });
+
+    it('deletes, signs out and shows the result on the sign-in page', async () => {
+      await open([google], '/settings?delete=confirm');
+      const result = {
+        deleted: true,
+        apple_revoke: 'manual',
+        manual_revoke_url: 'https://support.apple.com/x',
+      };
+      fetchMock.mockResolvedValue(json(200, { data: result }));
+
+      button('Delete for good')?.click();
+
+      await vi.waitFor(() => {
+        harness.detectChanges();
+        expect(harness.routeNativeElement?.textContent).toContain('account is deleted');
+      });
+      expect(calls('DELETE')[0][0]).toBe('https://api.curbside.xomware.com/v1/me');
+      expect(TestBed.inject(AuthSession).signedIn()).toBe(false);
+    });
+
+    it('asks for an Apple sign-in when the server wants a fresh one and Apple is linked', async () => {
+      await open([apple, google], '/settings?delete=confirm');
+      fetchMock.mockResolvedValueOnce(
+        json(403, {
+          data: null,
+          error: { code: 'reauth_required', message: 'Sign in with Apple again' },
+        }),
+      );
+
+      button('Delete for good')?.click();
+      await vi.waitFor(() => {
+        harness.detectChanges();
+        expect(button('Continue with Apple')).toBeDefined();
+      });
+      button('Continue with Apple')?.click();
+
+      await vi.waitFor(() => expect(redirects).toHaveLength(1));
+      expect(new URL(redirects[0]).searchParams.get('identity_provider')).toBe('SignInWithApple');
+      expect(JSON.parse(sessionStorage.getItem('curbside.pending') ?? '{}').intent).toBe('reauth');
+      expect(TestBed.inject(AuthSession).signedIn()).toBe(true);
+    });
+
+    it('re-authenticates with the current provider when no Apple sign-in is linked', async () => {
+      await open([google], '/settings?delete=confirm');
+      fetchMock.mockResolvedValueOnce(
+        json(403, { data: null, error: { code: 'reauth_required', message: 'x' } }),
+      );
+
+      button('Delete for good')?.click();
+
+      await vi.waitFor(() => {
+        harness.detectChanges();
+        expect(button('Continue with Google')).toBeDefined();
+      });
     });
   });
 });

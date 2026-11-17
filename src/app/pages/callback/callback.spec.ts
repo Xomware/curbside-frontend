@@ -131,4 +131,20 @@ describe('CallbackPage', () => {
     });
     expect(fetchMock).not.toHaveBeenCalled();
   });
+
+  it('adopts the fresh session after a re-auth and returns to the delete confirm', async () => {
+    TestBed.inject(AuthSession).adopt(fakeTokens('google_1'));
+    const harness = await land(
+      { provider: 'SignInWithApple', intent: 'reauth' },
+      tokenResponse('signinwithapple_1'),
+    );
+
+    await vi.waitFor(() =>
+      expect(TestBed.inject(AuthSession).accessToken()).toBe(
+        fakeTokens('signinwithapple_1').access,
+      ),
+    );
+    await vi.waitFor(() => expect(harness.routeNativeElement?.textContent).toContain('for good?'));
+    expect(fetchMock.mock.calls.filter(([, init]) => init?.method === 'DELETE')).toHaveLength(0);
+  });
 });

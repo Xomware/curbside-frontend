@@ -52,4 +52,50 @@
       {{ busy() ? 'Working…' : 'Export my data' }}
     </button>
   </section>
+
+  <section class="danger" aria-labelledby="delete-heading">
+    <h2 id="delete-heading" class="eyebrow">Delete account</h2>
+    @switch (deleteStep()) {
+      @case ('idle') {
+        <p>
+          Deletes every map, household, person, pet and note, and every sign-in. This can't be
+          undone. Export first if you want a copy.
+        </p>
+        <button
+          class="btn btn--stop"
+          type="button"
+          [disabled]="busy()"
+          (click)="deleteStep.set('confirm')"
+        >
+          Delete account
+        </button>
+      }
+      @case ('confirm') {
+        <h3 #deleteHeading tabindex="-1">
+          Delete {{ store.account()?.display_name }}'s account for good?
+        </h3>
+        <p>Everything goes now. Curbside keeps no copy.</p>
+        <button class="btn btn--stop" type="button" [disabled]="busy()" (click)="remove()">
+          {{ busy() ? 'Deleting…' : 'Delete for good' }}
+        </button>
+        <button class="btn-text" type="button" [disabled]="busy()" (click)="deleteStep.set('idle')">
+          Keep my account
+        </button>
+      }
+      @case ('reauth') {
+        <h3 #deleteHeading tabindex="-1">Sign in again to delete</h3>
+        <p>
+          Deleting needs a sign-in from the last 10 minutes{{
+            reauthProvider() === 'SignInWithApple'
+              ? ', with Apple, so Curbside can tell Apple to forget it'
+              : ''
+          }}. You'll come back here to confirm.
+        </p>
+        <button [xomProvider]="reauthProvider()" [disabled]="busy()" (click)="reauth()"></button>
+        <button class="btn-text" type="button" [disabled]="busy()" (click)="deleteStep.set('idle')">
+          Keep my account
+        </button>
+      }
+    }
+  </section>
 </main>

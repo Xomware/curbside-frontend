@@ -64,3 +64,18 @@ li {
   font-weight: 700;
   color: var(--ink);
 }
+
+h3 {
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.danger .btn-text {
+  align-self: center;
+}
+
+// Focus moves here so screen readers announce the step; it is not a control, so no ring.
+h3:focus {
+  outline: none;
+}
