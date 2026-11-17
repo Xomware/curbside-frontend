@@ -1,0 +1,12 @@
+<main class="page">
+  <div class="hero">
+    <h1 class="sign">Curbside</h1>
+    <p class="muted">Remember who lives where on your street.</p>
+  </div>
+  <div class="actions">
+    @for (provider of providers; track provider) {
+      <button [xomProvider]="provider" [disabled]="busy()" (click)="signIn(provider)"></button>
+    }
+    <p class="muted small">Your notes stay private to you. Nobody on your street is told.</p>
+  </div>
+</main>
