@@ -1,0 +1,14 @@
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+section {
+  padding-top: var(--space-4);
+  border-top: 2px solid var(--rule);
+}
+
+.btn-text {
+  align-self: center;
+}

@@ -1,0 +1,35 @@
+<main class="page">
+  <h1 class="sign">New here</h1>
+
+  <form class="stack" (submit)="$event.preventDefault(); create()">
+    <p>Pick a display name. Only people on maps you share can see it.</p>
+    <div class="field">
+      <label for="display-name">Display name</label>
+      <input
+        id="display-name"
+        autocomplete="nickname"
+        maxlength="80"
+        [formControl]="name"
+        [attr.aria-describedby]="error() ? 'welcome-error' : null"
+      />
+    </div>
+    @if (error(); as message) {
+      <p id="welcome-error" class="notice" role="alert">{{ message }}</p>
+    }
+    <button class="btn btn--green" type="submit" [disabled]="name.invalid || busy()">
+      {{ busy() ? 'Saving…' : 'Start mapping' }}
+    </button>
+  </form>
+
+  <section class="stack" aria-labelledby="link-heading">
+    <h2 id="link-heading" class="eyebrow">Already use Curbside?</h2>
+    <p>Sign in the way you did before and this sign-in joins that account.</p>
+    @for (provider of providers; track provider) {
+      <button [xomProvider]="provider" [disabled]="busy()" (click)="link(provider)"></button>
+    }
+  </section>
+
+  <button class="btn-text" type="button" [disabled]="busy()" (click)="useAnother()">
+    Use a different sign-in
+  </button>
+</main>

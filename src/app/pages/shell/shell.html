@@ -1,0 +1,23 @@
+<div class="frame">
+  <header>
+    <a class="wordmark" routerLink="/">CURBSIDE</a>
+    <button class="btn-text" type="button" (click)="signOut()">Sign out</button>
+  </header>
+
+  @switch (store.status()) {
+    @case ('ready') {
+      <router-outlet />
+    }
+    @case ('failed') {
+      <main class="page">
+        <p class="notice" role="alert">Couldn't reach Curbside.</p>
+        <button class="btn" type="button" (click)="store.load()">Try again</button>
+      </main>
+    }
+    @default {
+      <main class="page">
+        <p class="muted" role="status">Loading your account…</p>
+      </main>
+    }
+  }
+</div>
