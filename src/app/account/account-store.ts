@@ -15,6 +15,15 @@ export interface Account {
   identities: Identity[];
 }
 
+export interface DeleteResult {
+  deleted: true;
+  apple_revoke: 'revoked' | 'manual' | 'none';
+  manual_revoke_url?: string;
+}
+
+/** Carries the delete result to the sign-in page across the sign-out. */
+export const DELETED = 'curbside.deleted';
+
 export type AccountStatus = 'loading' | 'ready' | 'onboarding' | 'failed';
 
 @Injectable({ providedIn: 'root' })
@@ -51,6 +60,11 @@ export class AccountStore {
   /** Everything the account holds, as the API returns it. */
   export(): Promise<unknown> {
     return this.api.request<unknown>('GET', '/me/export');
+  }
+
+  /** 403 `reauth_required` unless the session signed in within 10 minutes, with Apple if Apple is linked. */
+  remove(): Promise<DeleteResult> {
+    return this.api.request<DeleteResult>('DELETE', '/me');
   }
 
   /** Adds the sign-in behind `idToken` to the account the current session belongs to. */

@@ -46,6 +46,10 @@ export class CallbackPage implements OnInit {
       return;
     }
     this.auth.adopt(tokens);
+    if (pending.intent === 'reauth') {
+      await this.router.navigateByUrl('/settings?delete=confirm', { replaceUrl: true });
+      return;
+    }
     if (pending.linkIdToken && !(await this.linkOrphan(pending.linkIdToken))) return;
     await this.router.navigateByUrl('/', { replaceUrl: true });
   }

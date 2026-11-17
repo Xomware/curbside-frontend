@@ -1,4 +1,16 @@
 <main class="page">
+  @if (deleted(); as result) {
+    <div class="notice deleted" role="status">
+      <p>Your Curbside account is deleted.</p>
+      @if (result.apple_revoke === 'manual') {
+        <p>
+          Apple couldn't be told automatically. To stop Apple sign-in for Curbside, remove it from
+          your Apple Account.
+          <a [href]="result.manual_revoke_url" target="_blank" rel="noopener">How to remove it</a>
+        </p>
+      }
+    </div>
+  }
   <div class="hero">
     <h1 class="sign">Curbside</h1>
     <p class="muted">Remember who lives where on your street.</p>
