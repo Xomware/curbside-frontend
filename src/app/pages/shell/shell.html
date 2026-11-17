@@ -1,7 +1,16 @@
 <div class="frame">
   <header>
     <a class="wordmark" routerLink="/">CURBSIDE</a>
-    <button class="btn-text" type="button" (click)="signOut()">Sign out</button>
+    <nav aria-label="Account">
+      <a
+        class="btn-text"
+        routerLink="/settings"
+        routerLinkActive="current"
+        ariaCurrentWhenActive="page"
+        >Settings</a
+      >
+      <button class="btn-text" type="button" (click)="signOut()">Sign out</button>
+    </nav>
   </header>
 
   @switch (store.status()) {

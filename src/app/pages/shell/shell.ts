@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit, effect, inject } from '@angular/core';
-import { Router, RouterLink, RouterOutlet } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
 import { AccountStore } from '../../account/account-store';
 import { AuthSession } from '../../auth/auth-session';
@@ -7,7 +7,7 @@ import { AuthSession } from '../../auth/auth-session';
 /** Signed-in frame: loads the account, sends a new sign-in to onboarding and a dead session to sign-in. */
 @Component({
   selector: 'xom-shell',
-  imports: [RouterLink, RouterOutlet],
+  imports: [RouterLink, RouterLinkActive, RouterOutlet],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './shell.html',
   styleUrl: './shell.scss',

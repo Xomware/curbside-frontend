@@ -1,0 +1,55 @@
+<main class="page">
+  <h1 class="sign">Settings</h1>
+
+  <p class="sr-only" role="status">{{ status() }}</p>
+  @if (status()) {
+    <p class="done" aria-hidden="true">{{ status() }}</p>
+  }
+  @if (error(); as message) {
+    <p class="notice" role="alert">{{ message }}</p>
+  }
+
+  <section aria-labelledby="methods-heading">
+    <h2 id="methods-heading" class="eyebrow">Sign-in methods</h2>
+    <ul>
+      @for (identity of identities(); track identity.sub) {
+        <li>
+          <div>
+            <strong>{{ label(identity) }}</strong>
+            @if (identity.sub === currentSub()) {
+              <span class="tag">This browser</span>
+            }
+            <span class="muted detail">{{ added(identity) }}</span>
+          </div>
+          <button
+            class="btn-text"
+            type="button"
+            [disabled]="busy() || identities().length === 1"
+            [attr.aria-describedby]="identities().length === 1 ? 'last-hint' : null"
+            (click)="unlink(identity)"
+          >
+            {{ identity.sub === currentSub() ? 'Remove and sign out' : 'Remove' }}
+          </button>
+        </li>
+      } @empty {
+        <li class="muted">No sign-ins listed.</li>
+      }
+    </ul>
+    @if (identities().length === 1) {
+      <p id="last-hint" class="muted detail">
+        Your only sign-in can't be removed. Add another first.
+      </p>
+    }
+    @for (provider of unlinked(); track provider) {
+      <button [xomProvider]="provider" [disabled]="busy()" (click)="link(provider)"></button>
+    }
+  </section>
+
+  <section aria-labelledby="data-heading">
+    <h2 id="data-heading" class="eyebrow">Your data</h2>
+    <p>Download every map, household, person, pet and note as a JSON file.</p>
+    <button class="btn" type="button" [disabled]="busy()" (click)="download()">
+      {{ busy() ? 'Working…' : 'Export my data' }}
+    </button>
+  </section>
+</main>

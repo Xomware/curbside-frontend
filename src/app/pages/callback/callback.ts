@@ -42,7 +42,7 @@ export class CallbackPage implements OnInit {
   private async land(pending: Pending, tokens: Tokens): Promise<void> {
     if (pending.intent === 'link') {
       await this.account.link(tokens.id);
-      await this.router.navigateByUrl('/', { replaceUrl: true });
+      await this.router.navigateByUrl('/settings?linked=1', { replaceUrl: true });
       return;
     }
     this.auth.adopt(tokens);
