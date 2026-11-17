@@ -3,6 +3,7 @@ import { Routes } from '@angular/router';
 import { signedIn, signedOut } from './auth/guards';
 import { CallbackPage } from './pages/callback/callback';
 import { HomePage } from './pages/home/home';
+import { SettingsPage } from './pages/settings/settings';
 import { Shell } from './pages/shell/shell';
 import { SignInPage } from './pages/sign-in/sign-in';
 import { WelcomePage } from './pages/welcome/welcome';
@@ -15,7 +16,10 @@ export const routes: Routes = [
     path: '',
     component: Shell,
     canActivate: [signedIn],
-    children: [{ path: '', component: HomePage, title: 'Curbside' }],
+    children: [
+      { path: '', component: HomePage, title: 'Curbside' },
+      { path: 'settings', component: SettingsPage, title: 'Settings · Curbside' },
+    ],
   },
   { path: '**', redirectTo: '' },
 ];

@@ -20,3 +20,18 @@ header {
 .frame ::ng-deep .page {
   min-height: auto;
 }
+
+nav {
+  display: flex;
+  gap: var(--space-1);
+}
+
+a.btn-text {
+  display: inline-flex;
+  align-items: center;
+}
+
+.current {
+  color: var(--ink);
+  text-decoration-thickness: 2px;
+}

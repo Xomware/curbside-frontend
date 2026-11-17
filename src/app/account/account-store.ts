@@ -42,6 +42,17 @@ export class AccountStore {
     this.status.set('ready');
   }
 
+  async unlink(sub: string): Promise<void> {
+    this.account.set(
+      await this.api.request<Account>('DELETE', `/me/identities/${encodeURIComponent(sub)}`),
+    );
+  }
+
+  /** Everything the account holds, as the API returns it. */
+  export(): Promise<unknown> {
+    return this.api.request<unknown>('GET', '/me/export');
+  }
+
   /** Adds the sign-in behind `idToken` to the account the current session belongs to. */
   async link(idToken: string): Promise<void> {
     await this.api.request('POST', '/me/identities', { id_token: idToken });
