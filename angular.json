@@ -30,6 +30,8 @@
               }
             ],
             "styles": [
+              "node_modules/@fontsource-variable/overpass/index.css",
+              "node_modules/@fontsource-variable/overpass-mono/index.css",
               "src/styles.scss"
             ]
           },

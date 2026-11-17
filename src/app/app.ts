@@ -1,12 +1,10 @@
-import { Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
 @Component({
-  imports: [RouterOutlet],
   selector: 'xom-root',
-  styleUrl: './app.scss',
+  imports: [RouterOutlet],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './app.html',
 })
-export class App {
-  protected readonly title = signal('curbside-frontend');
-}
+export class App {}

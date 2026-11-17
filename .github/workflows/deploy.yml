@@ -1,0 +1,25 @@
+name: Deploy Frontend
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy:
+    uses: Xomware/github-actions/.github/workflows/deploy-frontend-s3.yml@v1
+    with:
+      app: curbside
+      node-version: '24'
+      ssm: |
+        CURBSIDE_API_URL=/curbside/api/url
+        CURBSIDE_COGNITO_DOMAIN=/curbside/cognito/domain
+        CURBSIDE_COGNITO_CLIENT_ID=/curbside/cognito/web-client-id
+      build-command: node scripts/write-environment.mjs && npm run build
+      dist-dir: dist/curbside-frontend/browser
+      bucket: curbside.xomware.com
+      domain: curbside.xomware.com
