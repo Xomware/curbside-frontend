@@ -32,7 +32,9 @@ test_commands:
   Tokens live in `src/styles.scss` and mirror `Palette.swift`; change both together.
 - Light and dark follow the system (`prefers-color-scheme`); there is no toggle.
 - No emoji in UI.
-- Config is `src/environments/environment.ts`. The Cognito client ID is public, so it lives there, not in SSM.
+- Config is `src/environments/environment.ts`, committed with the prod values for local dev. The deploy
+  rewrites it from SSM via `scripts/write-environment.mjs`, which reads only its three named variables:
+  the deploy env also holds every Infisical `/curbside` secret.
 - Deploy is `.github/workflows/deploy.yml` on push to `main` via `Xomware/github-actions` `deploy-frontend-s3.yml@v1`.
   Infisical project `code`, env `prod`, folder `/curbside` must hold `AWS_FRONTEND_ROLE_ARN`.
 - Plans: `xom-research/docs/features/curbside/web-foundation/PLAN.md` and the epic `PLAN.md` beside it.
