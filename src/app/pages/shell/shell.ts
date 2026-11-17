@@ -29,6 +29,6 @@ export class Shell implements OnInit {
   }
 
   protected signOut(): void {
-    this.auth.signOut();
+    this.auth.logOut();
   }
 }

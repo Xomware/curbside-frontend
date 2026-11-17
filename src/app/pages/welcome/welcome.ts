@@ -50,8 +50,7 @@ export class WelcomePage {
     await this.auth.begin(provider, 'sign-in', this.auth.idToken() ?? undefined);
   }
 
-  protected async useAnother(): Promise<void> {
-    this.auth.signOut();
-    await this.router.navigateByUrl('/sign-in');
+  protected useAnother(): void {
+    this.auth.logOut();
   }
 }
