@@ -53,6 +53,15 @@ export async function exchange(
   return { access: body['access_token'], id: body['id_token'], refresh };
 }
 
+/** Clears Cognito's own session cookie, so the next sign-in asks again. The logout URI is the bare origin. */
+export function logoutUrl(): string {
+  const query = new URLSearchParams({
+    client_id: environment.cognitoClientId,
+    logout_uri: location.origin,
+  });
+  return `${environment.cognitoDomain}/logout?${query}`;
+}
+
 export async function revoke(refresh: string): Promise<void> {
   await fetch(`${environment.cognitoDomain}/oauth2/revoke`, {
     method: 'POST',

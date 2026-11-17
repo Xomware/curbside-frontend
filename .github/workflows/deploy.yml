@@ -15,12 +15,11 @@ jobs:
     with:
       app: curbside
       node-version: '24'
-      build-command: |
-        if grep -q REPLACE_WITH src/environments/environment.ts; then
-          echo "::error::cognitoClientId in src/environments/environment.ts is still a placeholder"
-          exit 1
-        fi
-        npm run build
+      ssm: |
+        CURBSIDE_API_URL=/curbside/api/url
+        CURBSIDE_COGNITO_DOMAIN=/curbside/cognito/domain
+        CURBSIDE_COGNITO_CLIENT_ID=/curbside/cognito/web-client-id
+      build-command: node scripts/write-environment.mjs && npm run build
       dist-dir: dist/curbside-frontend/browser
       bucket: curbside.xomware.com
       domain: curbside.xomware.com
