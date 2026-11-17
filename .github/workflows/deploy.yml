@@ -1,0 +1,26 @@
+name: Deploy Frontend
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy:
+    uses: Xomware/github-actions/.github/workflows/deploy-frontend-s3.yml@v1
+    with:
+      app: curbside
+      node-version: '24'
+      build-command: |
+        if grep -q REPLACE_WITH src/environments/environment.ts; then
+          echo "::error::cognitoClientId in src/environments/environment.ts is still a placeholder"
+          exit 1
+        fi
+        npm run build
+      dist-dir: dist/curbside-frontend/browser
+      bucket: curbside.xomware.com
+      domain: curbside.xomware.com

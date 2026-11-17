@@ -1,24 +1,21 @@
+import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { RouterTestingHarness } from '@angular/router/testing';
+
 import { App } from './app';
 
+@Component({ template: '<p>routed</p>' })
+class Routed {}
+
 describe('App', () => {
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
+  it('renders the routed page', async () => {
+    TestBed.configureTestingModule({
       imports: [App],
-    })
-      .compileComponents();
-  });
+      providers: [provideRouter([{ path: '', component: Routed }])],
+    });
+    const harness = await RouterTestingHarness.create('/');
 
-  it('should create the app', () => {
-    const fixture = TestBed.createComponent(App);
-    const app = fixture.componentInstance;
-    expect(app).toBeTruthy();
-  });
-
-  it('should render title', async () => {
-    const fixture = TestBed.createComponent(App);
-    await fixture.whenStable();
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, curbside-frontend');
+    expect(harness.routeNativeElement?.textContent).toContain('routed');
   });
 });
