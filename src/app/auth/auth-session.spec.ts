@@ -90,4 +90,17 @@ describe('AuthSession', () => {
     expect(url).toContain('/oauth2/revoke');
     expect(new URLSearchParams(init.body as URLSearchParams).get('token')).toBe('r-9');
   });
+
+  it('ends the Cognito session on a user sign-out', () => {
+    const auth = session();
+    auth.adopt(fakeTokens());
+    fetchMock.mockResolvedValue(json(200, {}));
+
+    auth.logOut();
+
+    const url = new URL(redirects[0]);
+    expect(url.pathname).toBe('/logout');
+    expect(url.searchParams.get('logout_uri')).toBe(location.origin);
+    expect(auth.signedIn()).toBe(false);
+  });
 });

@@ -6,6 +6,7 @@ import {
   Tokens,
   authorizeUrl,
   exchange,
+  logoutUrl,
   redirectUri,
   revoke,
 } from './cognito';
@@ -98,6 +99,12 @@ export class AuthSession {
     sessionStorage.removeItem(TOKENS);
     // Best effort: the local session is gone either way, and a failed revoke leaves a token that expires on its own.
     if (refresh) revoke(refresh).catch(() => undefined);
+  }
+
+  /** The user's sign-out: also ends the Cognito session, which redirects back to the origin. */
+  logOut(): void {
+    this.signOut();
+    this.redirect(logoutUrl());
   }
 
   private async runRefresh(): Promise<string> {
