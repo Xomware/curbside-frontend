@@ -2,12 +2,13 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 
 import { Api, ApiError } from '../api/api';
 import { MapStore } from '../map/map-store';
-import { Household, Person, Pet } from '../map/models';
+import { Household, Note, Person, Pet } from '../map/models';
 import { Body } from './drafts';
 
 interface Children {
   people: Person;
   pets: Pet;
+  notes: Note;
 }
 
 /** `conflict`: someone else changed it first. The card now shows their copy; the form keeps the user's draft. */
@@ -61,7 +62,7 @@ export class HouseholdModel {
   }
 
   /** Creates a person or pet (no `id`), or PATCHes one. A 409 reloads the household. */
-  async save<K extends keyof Children>(
+  async save<K extends 'people' | 'pets'>(
     kind: K,
     id: string | null,
     body: Body,
@@ -89,6 +90,48 @@ export class HouseholdModel {
     }
     this.edit(kind, (list) => list.filter((c) => c.id !== id));
     return true;
+  }
+
+  /** The server also sets `last_talked_at` to the note's time, without bumping `version`; mirrored here. */
+  async addNote(text: string): Promise<boolean> {
+    try {
+      const note = await this.api.request<Note>('POST', `${this.path}/notes`, {
+        text,
+        source: 'manual',
+      });
+      this.edit('notes', (notes) => [note, ...notes]);
+      this.patchLocal({ last_talked_at: note.created_at });
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  /** Marks a conversation without a note. The PATCH response omits people and pets, so only these two fields move. */
+  async talkedToday(now = new Date()): Promise<SaveResult> {
+    const household = this.household();
+    if (!household) return 'failed';
+    // No fractional seconds: the API stores the string as sent and iOS's ISO 8601 parser rejects fractions.
+    const at = now.toISOString().replace(/\.\d+Z$/, 'Z');
+    try {
+      const body = { version: household.version, last_talked_at: at };
+      const updated = await this.api.request<Household>('PATCH', this.path, body);
+      this.changed({
+        ...household,
+        version: updated.version,
+        private: { ...household.private, last_talked_at: updated.private.last_talked_at },
+      });
+      return 'saved';
+    } catch (error) {
+      if (!(error instanceof ApiError) || error.status !== 409) return 'failed';
+      await this.load();
+      return 'conflict';
+    }
+  }
+
+  private patchLocal(fields: Partial<Household['private']>): void {
+    const household = this.household();
+    if (household) this.changed({ ...household, private: { ...household.private, ...fields } });
   }
 
   private edit<K extends keyof Children>(

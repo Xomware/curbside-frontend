@@ -12,16 +12,31 @@
         <p class="eyebrow">{{ h.private.address }}</p>
       }
       <h1 #title class="sign sign--small" tabindex="-1">{{ h.private.label }}</h1>
-      <p class="muted">{{ talked(h.private.last_talked_at) }}</p>
+      <div class="talked">
+        <p class="muted">{{ talked(h.private.last_talked_at) }}</p>
+        @if (!talkedToday(h.private.last_talked_at)) {
+          <button class="btn-text" type="button" (click)="markTalked()">Talked today</button>
+        }
+      </div>
     </header>
+
+    @if (problem(); as text) {
+      <p class="notice" role="alert">{{ text }}</p>
+    }
 
     <p class="sr-only" role="status">{{ status() }}</p>
 
     @if (editing(); as open) {
-      @if (open.kind === 'person') {
-        <xom-person-form [person]="open.item" (done)="close($event)" />
-      } @else {
-        <xom-pet-form [pet]="open.item" (done)="close($event)" />
+      @switch (open.kind) {
+        @case ('person') {
+          <xom-person-form [person]="open.item" (done)="close($event)" />
+        }
+        @case ('pet') {
+          <xom-pet-form [pet]="open.item" (done)="close($event)" />
+        }
+        @case ('note') {
+          <xom-note-form (done)="close($event)" />
+        }
       }
     } @else {
       @if (model.adults().length) {
@@ -99,6 +114,20 @@
                   >{{ noteDate(note.created_at) }}<br />{{ note.source }}</time
                 >
                 <p>{{ note.text }}</p>
+                @if (deleting() === note.id) {
+                  <button class="btn-text danger" type="button" (click)="deleteNote(note.id)">
+                    Delete for good
+                  </button>
+                } @else {
+                  <button
+                    class="btn-text"
+                    type="button"
+                    [attr.aria-label]="'Delete note from ' + noteDate(note.created_at)"
+                    (click)="deleting.set(note.id)"
+                  >
+                    Delete
+                  </button>
+                }
               </div>
             } @empty {
               <p class="muted">No notes yet</p>
@@ -115,6 +144,9 @@
       }
 
       <div class="actions">
+        <button class="btn btn--green wide" type="button" (click)="editing.set({ kind: 'note' })">
+          Add a note
+        </button>
         <button class="btn" type="button" (click)="editing.set({ kind: 'person', item: null })">
           Add a person
         </button>

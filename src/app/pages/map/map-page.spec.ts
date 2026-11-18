@@ -104,4 +104,20 @@ describe('MapPage', () => {
 
     await vi.waitFor(() => expect(TestBed.inject(MapStore).status()).toBe('ready'));
   });
+
+  it('offers + Add at a dropped pin with the looked-up address filled in', async () => {
+    mapLoads('pending');
+    const { fixture, el } = await render('Map unavailable');
+
+    await TestBed.inject(MapStore).drop(40.2, -75.2);
+    await fixture.whenStable();
+    expect(el.querySelector('.panel')?.textContent).toContain('Nobody added here yet.');
+    const add = [...el.querySelectorAll('button')].find((b) =>
+      b.textContent?.includes('a household here'),
+    );
+    add?.click();
+    await fixture.whenStable();
+
+    expect((el.querySelector('#hh-address') as HTMLInputElement).value).toBe('11 Quillfeather Ln');
+  });
 });
