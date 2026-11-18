@@ -2,7 +2,7 @@ import { Routes } from '@angular/router';
 
 import { signedIn, signedOut } from './auth/guards';
 import { CallbackPage } from './pages/callback/callback';
-import { HomePage } from './pages/home/home';
+import { MapPage } from './pages/map/map-page';
 import { PrivacyPage } from './pages/privacy/privacy';
 import { SettingsPage } from './pages/settings/settings';
 import { Shell } from './pages/shell/shell';
@@ -19,7 +19,7 @@ export const routes: Routes = [
     component: Shell,
     canActivate: [signedIn],
     children: [
-      { path: '', component: HomePage, title: 'Curbside' },
+      { path: '', component: MapPage, title: 'Curbside' },
       { path: 'settings', component: SettingsPage, title: 'Settings · Curbside' },
     ],
   },
