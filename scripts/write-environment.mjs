@@ -1,5 +1,5 @@
-// Rewrites src/environments/environment.ts from the deploy's SSM values. It reads only these three names:
-// the deploy env also holds every Infisical /curbside secret, and none of those may reach the bundle.
+// Rewrites src/environments/environment.ts from the deploy's SSM values plus the MapKit JS token. It reads only
+// these four names: the deploy env also holds every Infisical /curbside secret, and no other may reach the bundle.
 import { writeFileSync } from 'node:fs';
 
 function read(name) {
@@ -16,6 +16,8 @@ const environment = {
   // SSM holds the bare host.
   cognitoDomain: `https://${read('CURBSIDE_COGNITO_DOMAIN')}`,
   cognitoClientId: read('CURBSIDE_COGNITO_CLIENT_ID'),
+  // Public by design (origin-restricted in Apple's dashboard). Optional: without it the site runs map-less.
+  mapkitToken: process.env.MAPKIT_JS_TOKEN ?? '',
 };
 
 writeFileSync(
