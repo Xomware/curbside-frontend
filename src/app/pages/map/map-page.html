@@ -41,6 +41,15 @@
               } @empty {
                 <p>Nobody added here yet.</p>
               }
+              @if (adding()) {
+                <xom-new-household [spot]="spot" (cancel)="adding.set(false)" />
+              } @else {
+                <!-- Always offered: a building with one household can still be a duplex. -->
+                <button class="plaque-link" type="button" (click)="adding.set(true)">
+                  <xom-plaque />
+                  <span class="sr-only">a household here</span>
+                </button>
+              }
             </section>
           }
 

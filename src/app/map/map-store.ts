@@ -90,6 +90,25 @@ export class MapStore {
     }
   }
 
+  /** Adds a household at a picked building or dropped pin. */
+  async create(spot: Spot, label: string, address: string | null): Promise<Household> {
+    const body = {
+      label,
+      lat: spot.lat,
+      lng: spot.lng,
+      ...(address ? { address } : {}),
+      ...(spot.buildingId ? { building_id: spot.buildingId } : {}),
+    };
+    const created = await this.api.request<Household>(
+      'POST',
+      `/maps/${this.place()?.id}/households`,
+      body,
+    );
+    this.upsert(created);
+    this.selection.set(null);
+    return created;
+  }
+
   household(id: string): Household | undefined {
     return this.households().find((h) => h.id === id);
   }

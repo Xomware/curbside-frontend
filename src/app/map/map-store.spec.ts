@@ -128,4 +128,38 @@ describe('MapStore', () => {
     await store.refresh();
     expect(store.households()).toEqual([a]);
   });
+
+  it('adds a household at the pick, with its building only when there is one', async () => {
+    await loaded();
+    const made = household('n', {}, 'Quillby');
+    fetchMock
+      .mockResolvedValueOnce(json(201, { data: made }))
+      .mockResolvedValueOnce(json(201, { data: made }));
+    store.selection.set({
+      lat: 40.1,
+      lng: -75.1,
+      buildingId: 'osm:way/9',
+      address: '25 Quillfeather Ln',
+    });
+
+    await store.create(store.selection()!, 'Quillby', '25 Quillfeather Ln');
+    await store.create({ lat: 1, lng: 2, buildingId: null }, 'Quillby', null);
+
+    const bodies = fetchMock.mock.calls.slice(2).map(([, init]) => JSON.parse(init.body));
+    expect(bodies).toEqual([
+      {
+        label: 'Quillby',
+        lat: 40.1,
+        lng: -75.1,
+        address: '25 Quillfeather Ln',
+        building_id: 'osm:way/9',
+      },
+      { label: 'Quillby', lat: 1, lng: 2 },
+    ]);
+    expect(fetchMock.mock.calls[2][0]).toBe(
+      'https://api.curbside.xomware.com/v1/maps/map1/households',
+    );
+    expect(store.household('n')).toBeDefined();
+    expect(store.selection()).toBeNull();
+  });
 });
