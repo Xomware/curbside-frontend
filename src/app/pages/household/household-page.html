@@ -1,0 +1,107 @@
+<main class="page">
+  <a class="back" routerLink="/">
+    <svg width="11" height="18" viewBox="0 0 12 20" aria-hidden="true">
+      <path d="M10 2L2 10l8 8" fill="none" stroke="currentColor" stroke-width="2.2" />
+    </svg>
+    Block
+  </a>
+
+  @if (model.household(); as h) {
+    <header class="hero">
+      @if (h.private.address) {
+        <p class="eyebrow">{{ h.private.address }}</p>
+      }
+      <h1 class="sign sign--small">{{ h.private.label }}</h1>
+      <p class="muted">{{ talked(h.private.last_talked_at) }}</p>
+    </header>
+
+    @if (model.adults().length) {
+      <section class="sect" aria-labelledby="adults-heading">
+        <xom-section-sign kind="adults" />
+        <div>
+          <h2 id="adults-heading" class="eyebrow">Adults</h2>
+          @for (p of model.adults(); track p.id) {
+            <div class="entry">
+              <div>
+                <strong>{{ p.name }}</strong>
+                <span>{{ detail(p) }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      </section>
+    }
+
+    @if (model.kids().length) {
+      <section class="sect" aria-labelledby="kids-heading">
+        <xom-section-sign kind="kids" />
+        <div>
+          <h2 id="kids-heading" class="eyebrow">Kids</h2>
+          @for (p of model.kids(); track p.id) {
+            <div class="entry">
+              <div>
+                <strong>{{ p.name }}</strong>
+                <span>{{ detail(p) }}</span>
+              </div>
+              @if (age(p); as years) {
+                <span class="age"
+                  ><small>Age</small><b>{{ years }}</b></span
+                >
+              }
+            </div>
+          }
+        </div>
+      </section>
+    }
+
+    @if (model.pets().length) {
+      <section class="sect" aria-labelledby="pets-heading">
+        <xom-section-sign kind="pets" />
+        <div>
+          <h2 id="pets-heading" class="eyebrow">Pets</h2>
+          @for (pet of model.pets(); track pet.id) {
+            <div class="entry">
+              <div>
+                <strong>{{ pet.name }}</strong>
+                <span class="cap">{{ petDetail(pet) }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      </section>
+    }
+
+    @if (model.notes(); as notes) {
+      <section class="sect" aria-labelledby="notes-heading">
+        <xom-section-sign kind="notes" />
+        <div>
+          <h2 id="notes-heading" class="eyebrow">Notes</h2>
+          @for (note of notes; track note.id) {
+            <div class="note">
+              <time [attr.datetime]="note.created_at"
+                >{{ noteDate(note.created_at) }}<br />{{ note.source }}</time
+              >
+              <p>{{ note.text }}</p>
+            </div>
+          } @empty {
+            <p class="muted">No notes yet</p>
+          }
+        </div>
+      </section>
+    } @else if (model.loading()) {
+      <p class="muted" role="status">Loading notes…</p>
+    }
+
+    @if (model.failed()) {
+      <p class="notice" role="alert">Couldn't load their notes.</p>
+      <button class="btn" type="button" (click)="model.load()">Try again</button>
+    }
+  } @else if (model.missing()) {
+    <h1 class="sign sign--small">Not on your map</h1>
+    <p>This household isn't on your street any more.</p>
+  } @else if (model.failed() || model.store.status() === 'failed') {
+    <p class="notice" role="alert">Couldn't load this household.</p>
+  } @else {
+    <p class="muted" role="status">Loading…</p>
+  }
+</main>

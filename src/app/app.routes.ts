@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 
 import { signedIn, signedOut } from './auth/guards';
 import { CallbackPage } from './pages/callback/callback';
+import { HouseholdPage } from './pages/household/household-page';
 import { MapPage } from './pages/map/map-page';
 import { PrivacyPage } from './pages/privacy/privacy';
 import { SettingsPage } from './pages/settings/settings';
@@ -20,6 +21,7 @@ export const routes: Routes = [
     canActivate: [signedIn],
     children: [
       { path: '', component: MapPage, title: 'Curbside' },
+      { path: 'households/:id', component: HouseholdPage, title: 'Household · Curbside' },
       { path: 'settings', component: SettingsPage, title: 'Settings · Curbside' },
     ],
   },

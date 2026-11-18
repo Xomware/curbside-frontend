@@ -1,0 +1,101 @@
+.back {
+  display: inline-flex;
+  align-self: flex-start;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  padding: 0 var(--space-2);
+  border-radius: 8px;
+  font: 800 15px/1 var(--font);
+  text-decoration: none;
+
+  &:hover {
+    background: var(--surface);
+  }
+}
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding-bottom: var(--space-3);
+  border-bottom: 2px solid var(--rule);
+}
+
+.sect {
+  display: grid;
+  grid-template-columns: 38px 1fr;
+  gap: var(--space-3);
+  padding-bottom: var(--space-3);
+  border-bottom: 2px solid var(--rule);
+
+  h2 {
+    margin: 2px 0 var(--space-1);
+  }
+}
+
+.entry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: 3px 0;
+
+  strong {
+    display: block;
+    font: 800 18px/1.2 var(--font);
+  }
+
+  div span {
+    display: block;
+    color: var(--ink2);
+    font-size: 13px;
+    line-height: 1.4;
+  }
+}
+
+.cap::first-letter {
+  text-transform: uppercase;
+}
+
+// Speed-limit sign: AGE over the number.
+.age {
+  flex: none;
+  width: 44px;
+  padding: 4px 0 3px;
+  border-radius: 5px;
+  background: var(--sign-white);
+  color: var(--sign-ink);
+  text-align: center;
+  box-shadow:
+    inset 0 0 0 1.5px var(--sign-white),
+    inset 0 0 0 3px var(--sign-ink);
+
+  small {
+    display: block;
+    font: 900 8px/1 var(--font);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  b {
+    display: block;
+    font: 900 20px/1 var(--font);
+  }
+}
+
+.note {
+  display: grid;
+  grid-template-columns: 54px 1fr;
+  gap: var(--space-2);
+  padding: 3px 0;
+  font-size: 14px;
+  line-height: 1.45;
+
+  time {
+    color: var(--ink2);
+    font: 700 11px/1.5 var(--mono);
+    text-transform: uppercase;
+  }
+}
