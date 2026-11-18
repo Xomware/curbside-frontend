@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 
 import { signedIn, signedOut } from './auth/guards';
 import { CallbackPage } from './pages/callback/callback';
+import { CapturePage } from './pages/capture/capture-page';
 import { HouseholdPage } from './pages/household/household-page';
 import { MapPage } from './pages/map/map-page';
 import { PrivacyPage } from './pages/privacy/privacy';
@@ -22,6 +23,7 @@ export const routes: Routes = [
     children: [
       { path: '', component: MapPage, title: 'Curbside' },
       { path: 'households/:id', component: HouseholdPage, title: 'Household · Curbside' },
+      { path: 'capture', component: CapturePage, title: 'Talk · Curbside' },
       { path: 'settings', component: SettingsPage, title: 'Settings · Curbside' },
     ],
   },

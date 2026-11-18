@@ -134,3 +134,10 @@ ul {
     inset 0 0 0 1.5px var(--sign-white),
     inset 0 0 0 3px var(--sign-ink);
 }
+
+.dock {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  justify-content: space-between;
+}
