@@ -38,7 +38,9 @@ describe('HouseholdPage notes and talked today', () => {
     await t.settle(() => expect(t.button('Save note')?.disabled).toBe(false));
     t.button('Save note')?.click();
 
-    await t.settle(() => expect(t.el().querySelector('[role=status]')?.textContent).toBe('Note saved.'));
+    await t.settle(() =>
+      expect(t.el().querySelector('[role=status]')?.textContent).toBe('Note saved.'),
+    );
     expect(t.el().textContent).toContain('Talked today');
     expect(t.sent('POST', `${HH}/notes`)).toEqual([
       { text: 'Mom staying through Thanksgiving.', source: 'manual' },
@@ -86,7 +88,9 @@ describe('HouseholdPage notes and talked today', () => {
       expect(t.el().textContent).toContain("Here's their version; mark it again."),
     );
     expect(
-      t.fetchMock.mock.calls.filter(([url, init]) => String(url).endsWith(HH) && init?.method === 'GET'),
+      t.fetchMock.mock.calls.filter(
+        ([url, init]) => String(url).endsWith(HH) && init?.method === 'GET',
+      ),
     ).toHaveLength(2);
   });
 
