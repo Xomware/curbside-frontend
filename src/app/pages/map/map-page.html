@@ -50,7 +50,23 @@
                   <span class="sr-only">a household here</span>
                 </button>
               }
+              <xom-talk-sign
+                [label]="
+                  store.selected().length
+                    ? 'Talk: capture about this house'
+                    : 'Talk: capture a new house here'
+                "
+              />
             </section>
+          }
+
+          @if (!store.selection()) {
+            <div class="dock">
+              <p class="muted">
+                Heard something about a neighbor? Type it, then check what Curbside makes of it.
+              </p>
+              <xom-talk-sign />
+            </div>
           }
 
           <section aria-labelledby="homes-heading">

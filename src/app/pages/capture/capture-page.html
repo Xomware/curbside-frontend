@@ -1,0 +1,198 @@
+<main class="page">
+  <a class="back" routerLink="/">Cancel</a>
+
+  @switch (model.phase()) {
+    @case ('input') {
+      <h1 class="sign">Talk</h1>
+      @if (model.focus; as focus) {
+        <p>
+          About <strong>{{ focus.private.label }}</strong> and the houses around them.
+        </p>
+      }
+      @if (model.message(); as message) {
+        <p class="notice" role="alert">{{ message }}</p>
+      }
+      <form class="editor" (submit)="$event.preventDefault(); model.parse()">
+        <div class="field">
+          <label for="transcript">What did you hear?</label>
+          <textarea
+            id="transcript"
+            rows="7"
+            [maxLength]="limit"
+            [value]="model.transcript()"
+            (input)="type($event)"
+            aria-describedby="transcript-count"
+          ></textarea>
+          <p id="transcript-count" class="muted count">
+            {{ model.transcript().length }} / {{ limit }}
+          </p>
+        </div>
+        <button class="btn btn--green" type="submit" [disabled]="!model.transcript().trim()">
+          Check it
+        </button>
+      </form>
+      <p class="muted">
+        Curbside reads this once to suggest changes and keeps none of it until you save.
+      </p>
+    }
+    @case ('parsing') {
+      <p class="muted" role="status">Reading it…</p>
+    }
+    @default {
+      <div class="work" role="status">
+        <svg width="44" height="44" viewBox="0 0 44 44" aria-hidden="true">
+          <path d="M22 2l20 20-20 20L2 22z" class="diamond" />
+          <path d="M15 29l3.5-12 4 2.5L25 15M24 29l2-6 4 2v4" class="figure" />
+          <circle cx="27" cy="12.5" r="2.3" class="head" />
+        </svg>
+        <div>
+          <b>Changes ahead</b>
+          <span>{{ model.ops().length }} found · check before saving</span>
+        </div>
+      </div>
+
+      @if (model.message(); as message) {
+        <p class="notice" role="alert">{{ message }}</p>
+      }
+
+      <section class="said" aria-labelledby="said-heading">
+        <h2 id="said-heading" class="eyebrow">What you said</h2>
+        <p>
+          @for (part of said(); track $index) {
+            @if (part.number) {
+              <mark
+                >{{ part.text
+                }}<sup
+                  ><span class="sr-only"> (change </span>{{ part.number
+                  }}<span class="sr-only">)</span></sup
+                ></mark
+              >
+            } @else {
+              {{ part.text }}
+            }
+          }
+        </p>
+        <button class="btn-text" type="button" (click)="model.revise()">Change the words</button>
+      </section>
+
+      <section aria-labelledby="save-heading">
+        <h2 id="save-heading" class="eyebrow">Save these</h2>
+        @for (row of rows(); track row.index) {
+          <div class="op">
+            <label class="tick">
+              <input
+                type="checkbox"
+                [checked]="row.op.checked"
+                (change)="model.toggle(row.index)"
+                [attr.aria-label]="'Save: ' + row.summary.who + ', ' + row.summary.change"
+              />
+              <span aria-hidden="true"></span>
+            </label>
+            <div class="op__body">
+              <p class="op__who">
+                @if (row.summary.number) {
+                  <i>{{ row.summary.number }}</i>
+                }
+                {{ row.summary.who }}
+                @if (row.op.needs_review) {
+                  <span class="flag" title="Placed by position, not by name">Check</span>
+                }
+              </p>
+              <p class="op__change" [class.off]="!row.op.checked">{{ row.summary.change }}</p>
+              <p class="op__ev">{{ row.index + 1 }} · “{{ row.op.evidence }}”</p>
+
+              @if (editing()?.index === row.index) {
+                <div class="editor">
+                  @for (key of editKeys(); track key) {
+                    <div class="field">
+                      <label [for]="'op-' + key">{{ key }}</label>
+                      <input
+                        [id]="'op-' + key"
+                        [value]="editing()?.values?.[key]"
+                        (input)="retype(key, $event)"
+                      />
+                    </div>
+                  }
+                  <button class="btn" type="button" (click)="doneEditing()">Done</button>
+                </div>
+              } @else if (row.editable) {
+                <button
+                  class="btn-text"
+                  type="button"
+                  [attr.aria-label]="'Edit: ' + row.summary.change"
+                  (click)="edit(row.op, row.index)"
+                >
+                  Edit
+                </button>
+              }
+
+              @if (row.op.op === 'create_household' && row.op.checked) {
+                @if (model.placements()[row.op.household_ref]; as spot) {
+                  <p class="placed">
+                    {{ spot.address ? 'Goes at ' + spot.address : 'Placed on the map' }}
+                  </p>
+                }
+                @if (hasMap()) {
+                  <button
+                    class="btn place"
+                    type="button"
+                    (click)="placing.set({ ref: row.op.household_ref, spot: null })"
+                  >
+                    {{
+                      model.placements()[row.op.household_ref] ? 'Move it' : 'Place it on the map'
+                    }}
+                  </button>
+                } @else if (!model.placements()[row.op.household_ref]) {
+                  <p class="muted">
+                    Placing a new house needs the map, which isn't available here. Uncheck it to
+                    save the rest.
+                  </p>
+                }
+              }
+            </div>
+          </div>
+        } @empty {
+          <p>Nothing to save from that. Say more, or add it on the card.</p>
+        }
+
+        @for (phrase of model.unresolved(); track $index) {
+          <div class="detour">
+            <b>Detour</b>
+            <span>Couldn't place “{{ phrase }}”</span>
+          </div>
+        }
+      </section>
+
+      @if (placing(); as p) {
+        <section class="picker" aria-labelledby="picker-heading">
+          <h2 id="picker-heading" class="eyebrow">Tap where the new house is</h2>
+          @if (store.place(); as place) {
+            <div class="picker__map">
+              <xom-place-map
+                [place]="place"
+                [households]="store.households()"
+                [footprints]="store.footprints()"
+                [selection]="p.spot"
+                (tap)="pick($event)"
+                (press)="pick($event, true)"
+              />
+            </div>
+          }
+          <div class="actions">
+            <button class="btn-text" type="button" (click)="placing.set(null)">Cancel</button>
+            <button class="btn btn--green" type="button" [disabled]="!p.spot" (click)="putHere()">
+              Put it here
+            </button>
+          </div>
+        </section>
+      }
+
+      <div class="actions">
+        <a class="btn" routerLink="/">Discard</a>
+        <button class="btn btn--green" type="button" [disabled]="!model.canSave()" (click)="save()">
+          {{ saveTitle() }}
+        </button>
+      </div>
+    }
+  }
+</main>
