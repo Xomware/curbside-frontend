@@ -21,8 +21,8 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
       <p>
         Speech is turned into text on your device. When you ask Curbside to read it, the text and
         the names of up to nine nearby households are sent to Anthropic's API to propose changes.
-        Curbside doesn't store the text. Anthropic may keep API inputs for a limited time for
-        safety review and does not train on them.
+        Curbside doesn't store the text. Anthropic may keep API inputs for a limited time for safety
+        review and does not train on them.
       </p>
       <h2>Maps</h2>
       <p>
