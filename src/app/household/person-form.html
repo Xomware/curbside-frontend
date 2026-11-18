@@ -1,0 +1,59 @@
+<form class="editor" [formGroup]="form" (ngSubmit)="save()">
+  <h2 #heading class="eyebrow" tabindex="-1">
+    {{ person() ? 'Edit ' + person()?.name : 'Add a person' }}
+  </h2>
+
+  <div class="field">
+    <label for="person-name">Name</label>
+    <input id="person-name" formControlName="name" maxlength="80" autocomplete="off" />
+  </div>
+
+  <fieldset class="choice">
+    <legend>Adult or kid</legend>
+    <label><input type="radio" formControlName="role" value="adult" /> Adult</label>
+    <label><input type="radio" formControlName="role" value="kid" /> Kid</label>
+  </fieldset>
+
+  <div class="field">
+    <label for="person-year">Birth year</label>
+    <input
+      id="person-year"
+      formControlName="birthYear"
+      inputmode="numeric"
+      maxlength="4"
+      autocomplete="off"
+    />
+  </div>
+  <label class="check"
+    ><input type="checkbox" formControlName="approx" /> The year is a guess</label
+  >
+
+  <div class="field">
+    <label for="person-notes">Notes</label>
+    <textarea id="person-notes" formControlName="notes" rows="3" maxlength="1000"></textarea>
+  </div>
+
+  @if (message(); as text) {
+    <p class="notice" role="alert">{{ text }}</p>
+  }
+
+  <button class="btn btn--green" type="submit" [disabled]="busy()">
+    {{ busy() ? 'Saving…' : 'Save' }}
+  </button>
+  <div class="editor__more">
+    <button class="btn-text" type="button" [disabled]="busy()" (click)="done.emit('')">
+      Cancel
+    </button>
+    @if (person(); as p) {
+      @if (confirming()) {
+        <button class="btn-text danger" type="button" [disabled]="busy()" (click)="remove()">
+          Remove {{ p.name }} for good
+        </button>
+      } @else {
+        <button class="btn-text" type="button" [disabled]="busy()" (click)="confirming.set(true)">
+          Remove
+        </button>
+      }
+    }
+  </div>
+</form>

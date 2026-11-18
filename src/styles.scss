@@ -204,7 +204,8 @@ a {
     font-weight: 700;
   }
 
-  input {
+  input,
+  textarea {
     min-height: 48px;
     padding: 10px 12px 8px;
     border: 2px solid var(--ink2);
@@ -222,6 +223,61 @@ a {
       outline-offset: 2px;
     }
   }
+}
+
+// An add/edit form standing in for part of a page.
+.editor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+
+  h2:focus {
+    outline: none;
+  }
+}
+
+.editor__more {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.choice {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-4);
+  margin: 0;
+  padding: 0;
+  border: 0;
+
+  legend {
+    width: 100%;
+    margin-bottom: var(--space-1);
+    padding: 0;
+    font-weight: 700;
+  }
+}
+
+.check,
+.choice label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  cursor: pointer;
+
+  input {
+    width: 20px;
+    height: 20px;
+    margin: 0;
+    accent-color: var(--green);
+  }
+}
+
+.btn-text.danger {
+  color: var(--ink);
+  text-decoration-color: var(--stop);
+  text-decoration-thickness: 2px;
 }
 
 // Error text sits on a yellow warning panel, never as red-on-grey.

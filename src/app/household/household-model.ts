@@ -2,7 +2,16 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 
 import { Api, ApiError } from '../api/api';
 import { MapStore } from '../map/map-store';
-import { Household } from '../map/models';
+import { Household, Person, Pet } from '../map/models';
+import { Body } from './drafts';
+
+interface Children {
+  people: Person;
+  pets: Pet;
+}
+
+/** `conflict`: someone else changed it first. The card now shows their copy; the form keeps the user's draft. */
+export type SaveResult = 'saved' | 'conflict' | 'failed';
 
 /** One household's card. Shows the map's copy straight away, then fetches the full record for notes. */
 @Injectable()
@@ -49,6 +58,47 @@ export class HouseholdModel {
     } finally {
       this.loading.set(false);
     }
+  }
+
+  /** Creates a person or pet (no `id`), or PATCHes one. A 409 reloads the household. */
+  async save<K extends keyof Children>(
+    kind: K,
+    id: string | null,
+    body: Body,
+  ): Promise<SaveResult> {
+    try {
+      const path = id ? `${this.path}/${kind}/${id}` : `${this.path}/${kind}`;
+      const child = await this.api.request<Children[K]>(id ? 'PATCH' : 'POST', path, body);
+      this.edit(kind, (list) =>
+        id ? list.map((c) => (c.id === id ? child : c)) : [...list, child],
+      );
+      return 'saved';
+    } catch (error) {
+      if (!(error instanceof ApiError) || error.status !== 409) return 'failed';
+      await this.load();
+      return 'conflict';
+    }
+  }
+
+  /** True once it's gone, including when someone else already deleted it (404). */
+  async remove<K extends keyof Children>(kind: K, id: string): Promise<boolean> {
+    try {
+      await this.api.request('DELETE', `${this.path}/${kind}/${id}`);
+    } catch (error) {
+      if (!(error instanceof ApiError) || error.status !== 404) return false;
+    }
+    this.edit(kind, (list) => list.filter((c) => c.id !== id));
+    return true;
+  }
+
+  private edit<K extends keyof Children>(
+    kind: K,
+    change: (list: Children[K][]) => Children[K][],
+  ): void {
+    const household = this.household();
+    if (!household) return;
+    const list = (household.private[kind] ?? []) as Children[K][];
+    this.changed({ ...household, private: { ...household.private, [kind]: change(list) } });
   }
 
   /** Keeps the card and the map's plaques on the same copy. */

@@ -11,90 +11,117 @@
       @if (h.private.address) {
         <p class="eyebrow">{{ h.private.address }}</p>
       }
-      <h1 class="sign sign--small">{{ h.private.label }}</h1>
+      <h1 #title class="sign sign--small" tabindex="-1">{{ h.private.label }}</h1>
       <p class="muted">{{ talked(h.private.last_talked_at) }}</p>
     </header>
 
-    @if (model.adults().length) {
-      <section class="sect" aria-labelledby="adults-heading">
-        <xom-section-sign kind="adults" />
-        <div>
-          <h2 id="adults-heading" class="eyebrow">Adults</h2>
-          @for (p of model.adults(); track p.id) {
-            <div class="entry">
-              <div>
-                <strong>{{ p.name }}</strong>
-                <span>{{ detail(p) }}</span>
-              </div>
-            </div>
-          }
-        </div>
-      </section>
-    }
+    <p class="sr-only" role="status">{{ status() }}</p>
 
-    @if (model.kids().length) {
-      <section class="sect" aria-labelledby="kids-heading">
-        <xom-section-sign kind="kids" />
-        <div>
-          <h2 id="kids-heading" class="eyebrow">Kids</h2>
-          @for (p of model.kids(); track p.id) {
-            <div class="entry">
-              <div>
-                <strong>{{ p.name }}</strong>
-                <span>{{ detail(p) }}</span>
-              </div>
-              @if (age(p); as years) {
-                <span class="age"
-                  ><small>Age</small><b>{{ years }}</b></span
-                >
-              }
-            </div>
-          }
-        </div>
-      </section>
-    }
-
-    @if (model.pets().length) {
-      <section class="sect" aria-labelledby="pets-heading">
-        <xom-section-sign kind="pets" />
-        <div>
-          <h2 id="pets-heading" class="eyebrow">Pets</h2>
-          @for (pet of model.pets(); track pet.id) {
-            <div class="entry">
-              <div>
-                <strong>{{ pet.name }}</strong>
-                <span class="cap">{{ petDetail(pet) }}</span>
-              </div>
-            </div>
-          }
-        </div>
-      </section>
-    }
-
-    @if (model.notes(); as notes) {
-      <section class="sect" aria-labelledby="notes-heading">
-        <xom-section-sign kind="notes" />
-        <div>
-          <h2 id="notes-heading" class="eyebrow">Notes</h2>
-          @for (note of notes; track note.id) {
-            <div class="note">
-              <time [attr.datetime]="note.created_at"
-                >{{ noteDate(note.created_at) }}<br />{{ note.source }}</time
+    @if (editing(); as open) {
+      @if (open.kind === 'person') {
+        <xom-person-form [person]="open.item" (done)="close($event)" />
+      } @else {
+        <xom-pet-form [pet]="open.item" (done)="close($event)" />
+      }
+    } @else {
+      @if (model.adults().length) {
+        <section class="sect" aria-labelledby="adults-heading">
+          <xom-section-sign kind="adults" />
+          <div>
+            <h2 id="adults-heading" class="eyebrow">Adults</h2>
+            @for (p of model.adults(); track p.id) {
+              <button
+                class="entry"
+                type="button"
+                (click)="editing.set({ kind: 'person', item: p })"
               >
-              <p>{{ note.text }}</p>
-            </div>
-          } @empty {
-            <p class="muted">No notes yet</p>
-          }
-        </div>
-      </section>
-    } @else if (model.loading()) {
-      <p class="muted" role="status">Loading notes…</p>
-    }
+                <span class="entry__text">
+                  <strong>{{ p.name }}</strong>
+                  <span>{{ detail(p) }}</span>
+                </span>
+              </button>
+            }
+          </div>
+        </section>
+      }
 
-    @if (model.failed()) {
-      <p class="notice" role="alert">Couldn't load their notes.</p>
-      <button class="btn" type="button" (click)="model.load()">Try again</button>
+      @if (model.kids().length) {
+        <section class="sect" aria-labelledby="kids-heading">
+          <xom-section-sign kind="kids" />
+          <div>
+            <h2 id="kids-heading" class="eyebrow">Kids</h2>
+            @for (p of model.kids(); track p.id) {
+              <button
+                class="entry"
+                type="button"
+                (click)="editing.set({ kind: 'person', item: p })"
+              >
+                <span class="entry__text">
+                  <strong>{{ p.name }}</strong>
+                  <span>{{ detail(p) }}</span>
+                </span>
+                @if (age(p); as years) {
+                  <span class="age"
+                    ><small>Age </small><b>{{ years }}</b></span
+                  >
+                }
+              </button>
+            }
+          </div>
+        </section>
+      }
+
+      @if (model.pets().length) {
+        <section class="sect" aria-labelledby="pets-heading">
+          <xom-section-sign kind="pets" />
+          <div>
+            <h2 id="pets-heading" class="eyebrow">Pets</h2>
+            @for (pet of model.pets(); track pet.id) {
+              <button class="entry" type="button" (click)="editing.set({ kind: 'pet', item: pet })">
+                <span class="entry__text">
+                  <strong>{{ pet.name }}</strong>
+                  <span class="cap">{{ petDetail(pet) }}</span>
+                </span>
+              </button>
+            }
+          </div>
+        </section>
+      }
+
+      @if (model.notes(); as notes) {
+        <section class="sect" aria-labelledby="notes-heading">
+          <xom-section-sign kind="notes" />
+          <div>
+            <h2 id="notes-heading" class="eyebrow">Notes</h2>
+            @for (note of notes; track note.id) {
+              <div class="note">
+                <time [attr.datetime]="note.created_at"
+                  >{{ noteDate(note.created_at) }}<br />{{ note.source }}</time
+                >
+                <p>{{ note.text }}</p>
+              </div>
+            } @empty {
+              <p class="muted">No notes yet</p>
+            }
+          </div>
+        </section>
+      } @else if (model.loading()) {
+        <p class="muted" role="status">Loading notes…</p>
+      }
+
+      @if (model.failed()) {
+        <p class="notice" role="alert">Couldn't load their notes.</p>
+        <button class="btn" type="button" (click)="model.load()">Try again</button>
+      }
+
+      <div class="actions">
+        <button class="btn" type="button" (click)="editing.set({ kind: 'person', item: null })">
+          Add a person
+        </button>
+        <button class="btn" type="button" (click)="editing.set({ kind: 'pet', item: null })">
+          Add a pet
+        </button>
+      </div>
     }
   } @else if (model.missing()) {
     <h1 class="sign sign--small">Not on your map</h1>
