@@ -1,0 +1,82 @@
+@switch (store.status()) {
+  @case ('ready') {
+    @if (store.place(); as place) {
+      <main class="block">
+        <div class="sign street">
+          <h1>{{ place.name }}</h1>
+          <span>{{
+            store.households().length === 1 ? '1 home' : store.households().length + ' homes'
+          }}</span>
+        </div>
+
+        <section class="map" aria-label="Map of {{ place.name }}">
+          <xom-place-map
+            [place]="place"
+            [households]="store.households()"
+            [footprints]="store.footprints()"
+            [selection]="store.selection()"
+            (open)="open($event)"
+            (tap)="tap($event)"
+            (press)="press($event)"
+          />
+          @if (store.footprints().length) {
+            <!-- ODbL: the outlines are OSM data, so the credit sits on the map wherever they are drawn. -->
+            <p class="credit">© OpenStreetMap contributors</p>
+          }
+        </section>
+
+        <div class="side">
+          @if (store.selection(); as spot) {
+            <section class="panel" aria-labelledby="spot-heading">
+              <div class="panel__head">
+                <h2 id="spot-heading" class="eyebrow">{{ spot.address ?? 'This house' }}</h2>
+                <button class="btn-text" type="button" (click)="store.selection.set(null)">
+                  Close
+                </button>
+              </div>
+              @for (h of store.selected(); track h.id) {
+                <a class="plaque-link" [routerLink]="['/households', h.id]">
+                  <xom-plaque [number]="number(h)" [name]="h.private.label" />
+                </a>
+              } @empty {
+                <p>Nobody added here yet.</p>
+              }
+            </section>
+          }
+
+          <section aria-labelledby="homes-heading">
+            <h2 id="homes-heading" class="eyebrow">Households</h2>
+            <ul>
+              @for (h of sorted(); track h.id) {
+                <li>
+                  <a class="plaque-link" [routerLink]="['/households', h.id]">
+                    <xom-plaque [number]="number(h)" [name]="h.private.label" />
+                  </a>
+                </li>
+              } @empty {
+                <li><span class="yard">Nobody added yet</span></li>
+              }
+            </ul>
+          </section>
+        </div>
+      </main>
+    }
+  }
+  @case ('none') {
+    <main class="page">
+      <h1 class="sign">No street yet</h1>
+      <p>Set up your street in the Curbside iPhone app. It shows up here once it's made.</p>
+    </main>
+  }
+  @case ('failed') {
+    <main class="page">
+      <p class="notice" role="alert">Couldn't load your map.</p>
+      <button class="btn" type="button" (click)="store.ensure()">Try again</button>
+    </main>
+  }
+  @default {
+    <main class="page">
+      <p class="muted" role="status">Loading your map…</p>
+    </main>
+  }
+}

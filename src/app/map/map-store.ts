@@ -3,12 +3,18 @@ import { Injectable, InjectionToken, computed, inject, signal } from '@angular/c
 import { Api } from '../api/api';
 import { FootprintLoader } from './footprints';
 import { Footprint, buildingAt } from './geo';
+import { MapKit } from './mapkit';
 import { Household, Place, Spot } from './models';
 
-/** Short address at a point, or null. MapKit's geocoder once the map loads; nothing without it. */
+/** Short address at a point, or null. MapKit's geocoder; tests swap it out. */
 export const REVERSE_GEOCODE = new InjectionToken<
   (lat: number, lng: number) => Promise<string | null>
->('REVERSE_GEOCODE', { factory: () => async () => null });
+>('REVERSE_GEOCODE', {
+  factory: () => {
+    const mapkit = inject(MapKit);
+    return (lat, lng) => mapkit.address(lat, lng);
+  },
+});
 
 export type MapStatus = 'loading' | 'none' | 'ready' | 'failed';
 
