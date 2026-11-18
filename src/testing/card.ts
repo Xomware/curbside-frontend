@@ -65,7 +65,7 @@ export function cardSetup() {
   const sent = (method: string, path: string) =>
     fetchMock.mock.calls
       .filter(([url, init]) => (init?.method ?? 'GET') === method && String(url).endsWith(path))
-      .map(([, init]) => JSON.parse(String(init?.body)));
+      .map(([, init]) => (init?.body ? JSON.parse(String(init.body)) : null));
 
   return { answers, fetchMock, open, el, settle, button, sent };
 }

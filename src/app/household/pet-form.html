@@ -1,0 +1,40 @@
+<form class="editor" [formGroup]="form" (ngSubmit)="save()">
+  <h2 #heading class="eyebrow" tabindex="-1">{{ pet() ? 'Edit ' + pet()?.name : 'Add a pet' }}</h2>
+
+  <div class="field">
+    <label for="pet-name">Name</label>
+    <input id="pet-name" formControlName="name" maxlength="80" autocomplete="off" />
+  </div>
+  <div class="field">
+    <label for="pet-species">Kind of animal</label>
+    <input id="pet-species" formControlName="species" maxlength="40" autocomplete="off" />
+  </div>
+  <div class="field">
+    <label for="pet-notes">Notes</label>
+    <textarea id="pet-notes" formControlName="notes" rows="3" maxlength="1000"></textarea>
+  </div>
+
+  @if (message(); as text) {
+    <p class="notice" role="alert">{{ text }}</p>
+  }
+
+  <button class="btn btn--green" type="submit" [disabled]="busy()">
+    {{ busy() ? 'Saving…' : 'Save' }}
+  </button>
+  <div class="editor__more">
+    <button class="btn-text" type="button" [disabled]="busy()" (click)="done.emit('')">
+      Cancel
+    </button>
+    @if (pet(); as p) {
+      @if (confirming()) {
+        <button class="btn-text danger" type="button" [disabled]="busy()" (click)="remove()">
+          Remove {{ p.name }} for good
+        </button>
+      } @else {
+        <button class="btn-text" type="button" [disabled]="busy()" (click)="confirming.set(true)">
+          Remove
+        </button>
+      }
+    }
+  </div>
+</form>
