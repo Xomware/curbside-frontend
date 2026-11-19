@@ -18,6 +18,25 @@
   --school: #c7dd33;
   --roof: #6e5648;
   --roof-acc: #857a70;
+  // Landing page street scene.
+  --bg2: #e3dfd6;
+  --accent: #0d6b3c;
+  --asphalt: #3b3e3d;
+  --curb: #cfcabe;
+  --walk: #dcd7cb;
+  --lawn: #a9b98a;
+  --lawn2: #9fb07f;
+  --fence: rgb(60 52 40 / 40%);
+  --ridge: #9a7c68;
+  --tree: #6f8a53;
+  --tree2: #59733f;
+  --lane: #efc232;
+  --mailbox: #252827;
+  --steel: #5d6361;
+  --glow: rgb(255 236 190 / 0%);
+  --panel-shadow:
+    0 1px 0 rgb(255 255 255 / 60%) inset, 0 30px 60px -30px rgb(40 35 25 / 35%),
+    0 0 0 1px var(--rule);
 
   --font: 'Overpass Variable', system-ui, sans-serif;
   --mono: 'Overpass Mono Variable', ui-monospace, monospace;
@@ -43,6 +62,22 @@
     --work: #f08232;
     --roof: #3b3230;
     --roof-acc: #34302e;
+    --bg2: #1b1e1d;
+    // Sign green on asphalt is under 3:1; text accents lighten.
+    --accent: #5cc98f;
+    --asphalt: #2a2d2c;
+    --curb: #4a4d4b;
+    --walk: #3a3d3b;
+    --lawn: #2f3a2b;
+    --lawn2: #2a3427;
+    --fence: rgb(200 200 190 / 18%);
+    --ridge: #57493f;
+    --tree: #34452c;
+    --tree2: #2b3a25;
+    --mailbox: #0e0f0f;
+    --steel: #3c4140;
+    --glow: rgb(255 214 140 / 16%);
+    --panel-shadow: 0 0 0 1px var(--rule), 0 30px 60px -30px rgb(0 0 0 / 70%);
   }
 }
 
@@ -361,5 +396,117 @@ a {
   *::after {
     transition: none !important;
     animation: none !important;
+  }
+}
+
+// Landing page pieces shared across its sections (pages/landing). Entry animations only run when motion is
+// allowed, so with reduced motion everything is simply visible.
+.l-wrap {
+  width: min(1160px, 100% - 32px);
+  margin-inline: auto;
+}
+
+.l-sect {
+  padding-block: clamp(80px, 12vw, 150px);
+}
+
+.l-sect--alt {
+  background: var(--bg2);
+}
+
+.l-duo {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  gap: clamp(32px, 6vw, 88px);
+  align-items: center;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.l-duo--flip > :first-child {
+  @media (min-width: 901px) {
+    order: 2;
+  }
+}
+
+.l-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--ink2);
+  font: 900 12px/1 var(--font);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+
+  b {
+    padding: 6px 7px 4px;
+    border-radius: 4px;
+    background: var(--sign-white);
+    color: var(--sign-ink);
+    font: 700 13px/1 var(--mono);
+    letter-spacing: 0;
+    box-shadow:
+      inset 0 0 0 1.5px var(--sign-white),
+      inset 0 0 0 3px var(--sign-ink);
+  }
+}
+
+.l-big {
+  margin-top: 18px;
+  font: 900 clamp(34px, 5vw, 58px)/1.02 var(--font);
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+.l-lede {
+  max-width: 34ch;
+  margin-top: 18px;
+  color: var(--ink2);
+  font-size: clamp(17px, 1.6vw, 19px);
+  text-wrap: pretty;
+}
+
+.l-fine {
+  margin-top: 14px;
+  color: var(--ink2);
+  font-size: 14px;
+}
+
+.l-panel {
+  position: relative;
+  border-radius: 22px;
+  background: var(--surface);
+  box-shadow: var(--panel-shadow);
+  overflow: hidden;
+}
+
+.l-dot {
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  margin: 0 6px 2px;
+  border-radius: 50%;
+  background: currentColor;
+  vertical-align: middle;
+}
+
+@keyframes l-rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .l-reveal [data-in] {
+    opacity: 0;
+  }
+
+  .l-reveal.seen [data-in] {
+    opacity: 1;
+    animation: l-rise 0.8s cubic-bezier(0.2, 0.8, 0.25, 1) both;
+    animation-delay: calc(var(--i, 0) * 110ms);
   }
 }

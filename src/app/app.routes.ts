@@ -1,9 +1,10 @@
 import { Routes } from '@angular/router';
 
-import { signedIn, signedOut } from './auth/guards';
+import { signedIn, signedOut, signedOutMatch } from './auth/guards';
 import { CallbackPage } from './pages/callback/callback';
 import { CapturePage } from './pages/capture/capture-page';
 import { HouseholdPage } from './pages/household/household-page';
+import { LandingPage } from './pages/landing/landing';
 import { MapPage } from './pages/map/map-page';
 import { PrivacyPage } from './pages/privacy/privacy';
 import { SettingsPage } from './pages/settings/settings';
@@ -12,6 +13,13 @@ import { SignInPage } from './pages/sign-in/sign-in';
 import { WelcomePage } from './pages/welcome/welcome';
 
 export const routes: Routes = [
+  {
+    path: '',
+    pathMatch: 'full',
+    component: LandingPage,
+    canMatch: [signedOutMatch],
+    title: 'Curbside',
+  },
   { path: 'sign-in', component: SignInPage, canActivate: [signedOut], title: 'Sign in · Curbside' },
   { path: 'auth/callback', component: CallbackPage, title: 'Signing in · Curbside' },
   { path: 'privacy', component: PrivacyPage, title: 'Privacy · Curbside' },

@@ -1,5 +1,5 @@
 import { inject } from '@angular/core';
-import { CanActivateFn, Router } from '@angular/router';
+import { CanActivateFn, CanMatchFn, Router } from '@angular/router';
 
 import { AuthSession } from './auth-session';
 
@@ -8,3 +8,6 @@ export const signedIn: CanActivateFn = () =>
 
 export const signedOut: CanActivateFn = () =>
   !inject(AuthSession).signedIn() || inject(Router).parseUrl('/');
+
+/** `/` is the landing page until someone signs in; after that the same URL falls through to the map. */
+export const signedOutMatch: CanMatchFn = () => !inject(AuthSession).signedIn();
