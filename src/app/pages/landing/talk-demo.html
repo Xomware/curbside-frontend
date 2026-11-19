@@ -1,0 +1,93 @@
+<div class="l-wrap l-duo">
+  <div>
+    <span class="l-step" data-in><b>03</b>Just say it</span>
+    <h2 class="l-big" data-in style="--i: 1">Just ran into them? Tap the stop sign and talk.</h2>
+    <p class="l-lede" data-in style="--i: 2">
+      Say it like you’d tell a friend. Curbside works out who you meant and what changed, then lays
+      out each change. Nothing saves until you check it.
+    </p>
+    <p class="l-fine" data-in style="--i: 3">
+      Speech turns into text on your iPhone. Your voice never leaves it.
+    </p>
+  </div>
+  <div class="l-panel talk" [class.listening]="listening()" aria-label="Example voice capture">
+    <div class="bar">
+      <button
+        class="stop"
+        [class.press]="pressed()"
+        type="button"
+        aria-label="Play the example again"
+        (click)="play()"
+      >
+        <svg viewBox="0 0 28 28" aria-hidden="true">
+          <path d="M8.2 0h11.6L28 8.2v11.6L19.8 28H8.2L0 19.8V8.2z" class="face" />
+          <path d="M8.6 1.2h10.8l7.4 7.4v10.8l-7.4 7.4H8.6l-7.4-7.4V8.6z" class="rule" />
+        </svg>
+        <span>TALK</span>
+      </button>
+      <div class="rec">
+        <p class="clock"><i></i>0:0{{ seconds() }}</p>
+        <div class="wave" aria-hidden="true">
+          @for (h of bars; track $index) {
+            <span [style.--h.%]="h" [style.animation-delay.s]="($index % 7) * -0.13"></span>
+          }
+        </div>
+      </div>
+    </div>
+    <div class="said">
+      <h4>WHAT YOU SAID</h4>
+      <!-- One line on purpose: template whitespace between segments would show up in the sentence. -->
+      <!-- prettier-ignore -->
+      <p>@for (s of segments(); track $index) {@if (s.mark) {<mark [class.lit]="s.mark <= lit()">{{ s.text }}@if (s.mark <= lit()) {<sup>{{ s.mark }}</sup>}</mark>} @else {{{ s.text }}}}@if (listening()) {<i class="caret"></i>}
+      </p>
+    </div>
+    <div class="ahead" [class.on]="ahead()">
+      <svg width="40" height="40" viewBox="0 0 44 44" aria-hidden="true">
+        <path d="M22 2l20 20-20 20L2 22z" class="w-face" />
+        <path d="M15 29l3.5-12 4 2.5L25 15M24 29l2-6 4 2v4" class="w-line" />
+        <circle cx="27" cy="12.5" r="2.3" class="w-dot" />
+      </svg>
+      <div>
+        <b>CHANGES AHEAD</b><span>4 found<i class="l-dot"></i>check before saving</span>
+      </div>
+    </div>
+    <ol class="ops">
+      <li [class.on]="shown() >= 1" [class.ok]="checked() >= 1">
+        <span class="chk"></span>
+        <div>
+          <p class="k"><i>11</i>PUMPERNICKEL</p>
+          <p class="t">Talked <del>6 days ago</del>&ngsp;<ins>today</ins></p>
+        </div>
+      </li>
+      <li [class.on]="shown() >= 2" [class.ok]="checked() >= 2">
+        <span class="chk"></span>
+        <div>
+          <p class="k"><i>11</i>PUMPERNICKEL<em class="l-dot"></em>ODO</p>
+          <p class="t">Age <del>~5</del>&ngsp;<ins>5</ins></p>
+        </div>
+      </li>
+      <li [class.on]="shown() >= 3" [class.ok]="checked() >= 3">
+        <span class="chk"></span>
+        <div>
+          <p class="k"><i>11</i>PUMPERNICKEL<em class="l-dot"></em>NOTE</p>
+          <p class="t"><ins>Odo starts kindergarten in the fall.</ins></p>
+        </div>
+      </li>
+      <li [class.on]="shown() >= 4">
+        <span class="chk"></span>
+        <div>
+          <p class="k">
+            <i>13</i>FIZZWHISTLE<em class="l-dot"></em>NEW PET&ngsp;<span class="unsure"
+              >CHECK</span
+            >
+          </p>
+          <p class="t"><ins>Pickles, cat</ins></p>
+        </div>
+      </li>
+    </ol>
+    <div class="save" [class.on]="done()">
+      <span class="btn">Discard</span>
+      <span class="btn btn--green">Save 3 changes</span>
+    </div>
+  </div>
+</div>

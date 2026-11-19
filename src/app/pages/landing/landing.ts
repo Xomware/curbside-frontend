@@ -3,11 +3,25 @@ import { RouterLink } from '@angular/router';
 
 import { LandingCloser } from './closer';
 import { LandingHero } from './hero';
+import { LandingNear } from './near';
+import { LandingPeople } from './people';
+import { LandingPrivate } from './private-road';
+import { LandingStreet } from './street';
+import { LandingTalk } from './talk-demo';
 
 /** What a signed-out visitor sees at `/`: what Curbside is, with sign-in at the top and the bottom. */
 @Component({
   selector: 'xom-landing',
-  imports: [RouterLink, LandingHero, LandingCloser],
+  imports: [
+    RouterLink,
+    LandingHero,
+    LandingStreet,
+    LandingPeople,
+    LandingTalk,
+    LandingNear,
+    LandingPrivate,
+    LandingCloser,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <header class="l-wrap">
@@ -17,6 +31,11 @@ import { LandingHero } from './hero';
     <main>
       <xom-landing-hero (more)="how.scrollIntoView({ behavior: 'smooth' })" />
       <span #how></span>
+      <xom-landing-street />
+      <xom-landing-people />
+      <xom-landing-talk />
+      <xom-landing-near />
+      <xom-landing-private />
       <xom-landing-closer />
     </main>
     <footer>
