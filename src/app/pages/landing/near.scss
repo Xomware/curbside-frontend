@@ -1,0 +1,163 @@
+:host {
+  display: block;
+  padding-block: clamp(80px, 12vw, 150px);
+  background: var(--bg2);
+}
+
+.gantry {
+  width: 100%;
+  max-width: 520px;
+  margin-inline: auto;
+  padding-bottom: 26px;
+  perspective: 900px;
+}
+
+.beam {
+  position: relative;
+  height: 22px;
+  border-radius: 4px;
+  background: linear-gradient(var(--steel), color-mix(in srgb, var(--steel) 70%, #000));
+  box-shadow: 0 4px 0 rgb(0 0 0 / 18%);
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    top: 7px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgb(255 255 255 / 25%);
+  }
+
+  &::before {
+    left: 14px;
+  }
+
+  &::after {
+    right: 14px;
+  }
+}
+
+ol {
+  display: grid;
+  gap: 22px;
+  margin: 0;
+  padding: 18px 18px 0;
+  list-style: none;
+}
+
+li {
+  position: relative;
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  gap: 12px;
+  align-items: center;
+  padding: 14px 16px 12px;
+  border-radius: 10px;
+  background: var(--green);
+  color: var(--sign-white);
+  box-shadow:
+    inset 0 0 0 2.5px var(--green),
+    inset 0 0 0 5px var(--sign-white),
+    0 4px 0 rgb(0 0 0 / 25%);
+  transform-origin: 50% -22px;
+
+  // The two rods it hangs from.
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    top: -22px;
+    width: 4px;
+    height: 22px;
+    background: var(--steel);
+  }
+
+  &::before {
+    left: 22%;
+  }
+
+  &::after {
+    right: 22%;
+  }
+
+  path {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 3.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  b {
+    display: block;
+    font: 800 clamp(19px, 2.4vw, 24px)/1.05 var(--font);
+  }
+
+  span {
+    display: block;
+    margin-top: 4px;
+    font-size: 13.5px;
+    line-height: 1.35;
+  }
+}
+
+li .tab {
+  position: absolute;
+  top: -11px;
+  right: 14px;
+  margin: 0;
+  padding: 5px 8px 3px;
+  border-radius: 5px;
+  background: var(--sign-white);
+  color: var(--sign-ink);
+  font: 700 12px/1 var(--mono);
+  box-shadow: inset 0 0 0 1.5px var(--sign-ink);
+}
+
+li .next {
+  grid-column: 1 / -1;
+  margin: 4px -10px -6px;
+  padding: 6px 10px 4px;
+  border-radius: 0 0 6px 6px;
+  background: var(--warn);
+  color: var(--sign-ink);
+  font: 900 11.5px/1 var(--font);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+@keyframes swing {
+  0% {
+    opacity: 0;
+    transform: rotateX(-95deg);
+  }
+  55% {
+    opacity: 1;
+    transform: rotateX(14deg);
+  }
+  78% {
+    transform: rotateX(-6deg);
+  }
+}
+
+@keyframes sway {
+  50% {
+    transform: rotateX(4deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  li {
+    opacity: 0;
+  }
+
+  :host(.seen) li {
+    opacity: 1;
+    animation:
+      swing 1s cubic-bezier(0.2, 0.8, 0.25, 1) both,
+      sway 4s ease-in-out infinite;
+    animation-delay: calc(0.3s + var(--i) * 220ms), calc(1.4s + var(--i) * 300ms);
+  }
+}
