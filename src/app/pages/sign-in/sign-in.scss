@@ -8,6 +8,27 @@
   text-align: center;
 }
 
+h1 {
+  margin: 0;
+}
+
+.logo {
+  display: block;
+  width: min(100%, 480px);
+  height: auto;
+}
+
+.tagline {
+  margin: 0;
+  font: italic 900 20px/1.2 var(--font);
+  color: var(--green);
+
+  // Sign green on asphalt is under 3:1.
+  @media (prefers-color-scheme: dark) {
+    color: var(--sign-white);
+  }
+}
+
 .actions {
   display: flex;
   flex-direction: column;
