@@ -18,11 +18,12 @@ import { PersonForm } from '../../household/person-form';
 import { PetForm } from '../../household/pet-form';
 import { SectionSign } from '../../household/section-sign';
 import { Person, Pet } from '../../map/models';
+import { Loading } from '../../ui/loading';
 
 /** The household card: who lives here, their kids and pets, and what you've noted. */
 @Component({
   selector: 'xom-household-page',
-  imports: [NoteForm, PersonForm, PetForm, RouterLink, SectionSign],
+  imports: [Loading, NoteForm, PersonForm, PetForm, RouterLink, SectionSign],
   providers: [HouseholdModel],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './household-page.html',

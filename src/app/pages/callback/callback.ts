@@ -6,22 +6,23 @@ import { failureMessage } from '../../account/messages';
 import { ApiError } from '../../api/api';
 import { AuthSession, Pending } from '../../auth/auth-session';
 import { Tokens, providerOf } from '../../auth/cognito';
+import { Loading } from '../../ui/loading';
 
 /** Lands the Cognito redirect: exchanges the code, then does what the sign-in was started for. */
 @Component({
   selector: 'xom-callback',
-  imports: [RouterLink],
+  imports: [Loading, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <main class="page">
-      <h1 class="sign">Curbside</h1>
-      @if (error(); as message) {
+    @if (error(); as message) {
+      <main class="page">
+        <h1 class="sign">Curbside</h1>
         <p class="notice" role="alert">{{ message }}</p>
         <a class="btn" [routerLink]="auth.signedIn() ? '/' : '/sign-in'">Back</a>
-      } @else {
-        <p class="muted" role="status">Signing you in…</p>
-      }
-    </main>
+      </main>
+    } @else {
+      <xom-loading label="Signing you in" />
+    }
   `,
 })
 export class CallbackPage implements OnInit {

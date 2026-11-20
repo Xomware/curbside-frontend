@@ -15,12 +15,13 @@ import { LatLng, PlaceMap } from '../../map/place-map';
 import { PlaceSetup } from '../../map/place-setup';
 import { Household } from '../../map/models';
 import { Plaque } from '../../ui/plaque';
+import { Loading } from '../../ui/loading';
 import { TalkSign } from '../../ui/talk-sign';
 
 /** The block: the place's street sign, the map, and every household as a plaque. The list works without the map. */
 @Component({
   selector: 'xom-map-page',
-  imports: [NewHousehold, PlaceMap, PlaceSetup, Plaque, RouterLink, TalkSign],
+  imports: [Loading, NewHousehold, PlaceMap, PlaceSetup, Plaque, RouterLink, TalkSign],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './map-page.html',
   styleUrl: './map-page.scss',

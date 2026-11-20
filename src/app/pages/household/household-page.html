@@ -161,6 +161,6 @@
   } @else if (model.failed() || model.store.status() === 'failed') {
     <p class="notice" role="alert">Couldn't load this household.</p>
   } @else {
-    <p class="muted" role="status">Loading…</p>
+    <xom-loading label="Opening the card" />
   }
 </main>

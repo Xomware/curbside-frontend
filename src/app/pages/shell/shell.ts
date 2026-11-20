@@ -3,11 +3,12 @@ import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/rou
 
 import { AccountStore } from '../../account/account-store';
 import { AuthSession } from '../../auth/auth-session';
+import { Loading } from '../../ui/loading';
 
 /** Signed-in frame: loads the account, sends a new sign-in to onboarding and a dead session to sign-in. */
 @Component({
   selector: 'xom-shell',
-  imports: [RouterLink, RouterLinkActive, RouterOutlet],
+  imports: [Loading, RouterLink, RouterLinkActive, RouterOutlet],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './shell.html',
   styleUrl: './shell.scss',
