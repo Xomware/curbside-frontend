@@ -1,0 +1,52 @@
+@if (!auth.signedIn()) {
+  <main class="page">
+    <h1 class="sign">You're invited</h1>
+    <p>Someone shared their street with you on Curbside. Sign in to see who and join.</p>
+    <xom-sign-in-buttons />
+  </main>
+} @else {
+  @switch (state()) {
+    @case ('ready') {
+      @if (invite(); as inv) {
+        <main class="page">
+          <p class="eyebrow">{{ inv.invited_by }} invited you to</p>
+          <h1 class="sign">{{ inv.map.name }}</h1>
+          @if (inv.already_member) {
+            <p>You're already on this street.</p>
+            <button class="btn btn--green" type="button" (click)="openStreet(inv.map.id)">
+              Open it
+            </button>
+          } @else {
+            <p>
+              You'll both see and edit every household, person, pet and note on it. Only people on
+              the street can see it.
+            </p>
+            @if (joinFailed()) {
+              <p class="notice" role="alert">Couldn't join. Try again.</p>
+            }
+            <button class="btn btn--green" type="button" [disabled]="busy()" (click)="join()">
+              {{ busy() ? 'Joining…' : 'Join ' + inv.map.name }}
+            </button>
+            <a class="btn-text" routerLink="/">Not now</a>
+          }
+        </main>
+      }
+    }
+    @case ('gone') {
+      <main class="page">
+        <h1 class="sign">Invite used up</h1>
+        <p>This link was already used or has expired. Ask for a new one.</p>
+        <a class="btn" routerLink="/">Go to Curbside</a>
+      </main>
+    }
+    @case ('failed') {
+      <main class="page">
+        <p class="notice" role="alert">Couldn't open this invite.</p>
+        <button class="btn" type="button" (click)="load()">Try again</button>
+      </main>
+    }
+    @default {
+      <xom-loading label="Opening your invite" />
+    }
+  }
+}

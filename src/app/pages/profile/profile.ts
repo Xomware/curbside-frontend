@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
 import { AccountStore } from '../../account/account-store';
@@ -8,6 +9,7 @@ import { houseNumber } from '../../map/geo';
 import { MapStore } from '../../map/map-store';
 import { Household } from '../../map/models';
 import { Loading } from '../../ui/loading';
+import { StreetSharing } from '../../sharing/street-sharing';
 import { Plaque } from '../../ui/plaque';
 
 const MONTH_MS = 30 * 86_400_000;
@@ -15,7 +17,7 @@ const MONTH_MS = 30 * 86_400_000;
 /** Who you are on Curbside and how your street is going: counts, and the neighbors you're due to say hello to. */
 @Component({
   selector: 'xom-profile',
-  imports: [Loading, Plaque, RouterLink],
+  imports: [Loading, Plaque, ReactiveFormsModule, RouterLink, StreetSharing],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './profile.html',
   styleUrl: './profile.scss',
@@ -26,6 +28,15 @@ export class ProfilePage {
   protected readonly map = inject(MapStore);
   protected readonly number = (h: Household) => houseNumber(h.private.address);
   protected readonly talked = talked;
+  protected readonly editing = signal(false);
+  protected readonly saving = signal(false);
+  protected readonly renameFailed = signal(false);
+  // The API takes 1-80 characters after trimming.
+  protected readonly name = inject(NonNullableFormBuilder).control('', [
+    Validators.required,
+    Validators.maxLength(80),
+    Validators.pattern(/\S/),
+  ]);
 
   protected readonly initials = computed(() =>
     (this.account.account()?.display_name ?? '')
@@ -78,6 +89,29 @@ export class ProfilePage {
 
   constructor() {
     void this.map.ensure();
+  }
+
+  protected edit(): void {
+    this.name.setValue(this.account.account()?.display_name ?? '');
+    this.renameFailed.set(false);
+    this.editing.set(true);
+  }
+
+  // A plain (submit): ngSubmit needs a [formGroup] on the form, and this one holds a lone control.
+  protected async rename(event: Event): Promise<void> {
+    event.preventDefault();
+    if (this.name.invalid) return;
+    this.saving.set(true);
+    this.renameFailed.set(false);
+    try {
+      await this.account.rename(this.name.value.trim());
+      this.editing.set(false);
+    } catch (error) {
+      console.error('Rename failed', error);
+      this.renameFailed.set(true);
+    } finally {
+      this.saving.set(false);
+    }
   }
 
   protected signOut(): void {

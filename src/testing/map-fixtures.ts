@@ -17,6 +17,7 @@ export const place: Place = {
   name: 'Quillfeather Ln',
   center: { lat: 40, lng: -75 },
   radius_m: 300,
+  role: 'owner',
   footprint: { status: 'ready', version: 2 },
   version: 1,
 };

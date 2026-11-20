@@ -4,6 +4,7 @@ import { signedIn, signedOut, signedOutMatch } from './auth/guards';
 import { CallbackPage } from './pages/callback/callback';
 import { CapturePage } from './pages/capture/capture-page';
 import { HouseholdPage } from './pages/household/household-page';
+import { InvitePage } from './pages/invite/invite';
 import { LandingPage } from './pages/landing/landing';
 import { MapPage } from './pages/map/map-page';
 import { ProfilePage } from './pages/profile/profile';
@@ -23,6 +24,7 @@ export const routes: Routes = [
   },
   { path: 'sign-in', component: SignInPage, canActivate: [signedOut], title: 'Sign in · Curbside' },
   { path: 'auth/callback', component: CallbackPage, title: 'Signing in · Curbside' },
+  { path: 'invite/:code', component: InvitePage, title: 'Invite · Curbside' },
   { path: 'privacy', component: PrivacyPage, title: 'Privacy · Curbside' },
   { path: 'welcome', component: WelcomePage, canActivate: [signedIn], title: 'Welcome · Curbside' },
   {

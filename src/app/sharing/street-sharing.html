@@ -1,0 +1,72 @@
+<section aria-labelledby="sharing-heading">
+  <h2 id="sharing-heading" class="eyebrow">Shared with</h2>
+
+  @if (members(); as list) {
+    <ul class="members">
+      @for (m of list; track m.account_id) {
+        <li>
+          <span class="who">
+            <strong>{{ m.display_name }}</strong>
+            @if (m.account_id === accountId()) {
+              <span class="muted">You</span>
+            }
+          </span>
+          @if (m.role === 'owner') {
+            <span class="role">Owner</span>
+          } @else if (place().role === 'owner') {
+            <button class="btn-text" type="button" [disabled]="busy()" (click)="remove(m)">
+              Remove
+            </button>
+          }
+        </li>
+      }
+    </ul>
+    @if (list.length === 1 && place().role === 'owner') {
+      <p class="muted">Just you so far.</p>
+    }
+  } @else if (!error()) {
+    <p class="muted" role="status">Loading…</p>
+  }
+
+  @if (error(); as message) {
+    <p class="notice" role="alert">{{ message }}</p>
+  }
+
+  @if (place().role === 'owner') {
+    @if (invite(); as inv) {
+      <div class="invite">
+        <label for="invite-link">Invite link</label>
+        <input #link id="invite-link" readonly [value]="url(inv.code)" (focus)="link.select()" />
+        <div class="invite__actions">
+          <button class="btn btn--green" type="button" (click)="copy(inv.code)">
+            {{ copied() ? 'Copied' : 'Copy link' }}
+          </button>
+          @if (canShare) {
+            <button class="btn" type="button" (click)="share(inv.code)">Share</button>
+          }
+        </div>
+        <p class="muted detail">Works once, until {{ expires(inv.expires_at) }}.</p>
+      </div>
+    } @else {
+      <p>
+        Share {{ place().name }} with someone you live with. They'll see and edit every household,
+        person, pet and note on it.
+      </p>
+      <button class="btn" type="button" [disabled]="busy()" (click)="makeInvite()">
+        Invite someone
+      </button>
+    }
+  } @else if (confirmLeave()) {
+    <p>Leave {{ place().name }}? You'll lose access until the owner invites you again.</p>
+    <div class="invite__actions">
+      <button class="btn btn--stop" type="button" [disabled]="busy()" (click)="leave()">
+        Leave street
+      </button>
+      <button class="btn-text" type="button" (click)="confirmLeave.set(false)">Stay</button>
+    </div>
+  } @else {
+    <button class="btn-text" type="button" (click)="confirmLeave.set(true)">
+      Leave this street
+    </button>
+  }
+</section>

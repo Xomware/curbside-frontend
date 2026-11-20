@@ -137,3 +137,57 @@ section {
 .actions .btn-text {
   white-space: nowrap;
 }
+
+.rename {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+
+  input {
+    flex: 1 1 200px;
+    min-height: 48px;
+    padding: 10px 12px 8px;
+    border: 2px solid var(--ink2);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--ink);
+    font: 700 20px var(--font);
+  }
+
+  .btn {
+    width: auto;
+    padding-inline: var(--space-4);
+  }
+}
+
+.streets {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+  }
+
+  button {
+    border: 0;
+    cursor: pointer;
+    text-align: left;
+  }
+
+  button[aria-current] {
+    outline: 3px solid var(--warn);
+    outline-offset: 2px;
+  }
+
+  span {
+    font-size: 14px;
+  }
+}
