@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 
-import { MAPKIT_TOKEN, MapKit } from './mapkit';
+import { MAPKIT_TOKEN, MapKit, MapKitJs } from './mapkit';
 
 describe('MapKit', () => {
   const scripts = () => document.head.querySelectorAll('script[src*="apple-mapkit"]');
@@ -47,5 +47,26 @@ describe('MapKit', () => {
     scripts()[0].dispatchEvent(new Event('error'));
 
     expect(await loading).toBeNull();
+  });
+
+  it('finds a typed address, or nothing', async () => {
+    const mapkit = setup('tok');
+    const places = [
+      { coordinate: { latitude: 40, longitude: -75 }, fullThoroughfare: '11 Quillfeather Ln' },
+    ];
+    const results = [places, []];
+    class Search {
+      search(_: string, done: (e: null, d: { places: unknown[] }) => void) {
+        done(null, { places: results.shift() ?? [] });
+      }
+    }
+    vi.spyOn(mapkit, 'load').mockResolvedValue({ Search } as unknown as MapKitJs);
+
+    expect(await mapkit.search('11 quillfeather')).toEqual({
+      lat: 40,
+      lng: -75,
+      address: '11 Quillfeather Ln',
+    });
+    expect(await mapkit.search('nowhere')).toBeNull();
   });
 });

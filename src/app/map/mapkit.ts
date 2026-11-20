@@ -13,6 +13,7 @@ export interface MkOverlay {
 }
 export interface MkMap {
   colorScheme: string;
+  region: object;
   overlays: MkOverlay[];
   annotations: object[];
   addOverlays(overlays: MkOverlay[]): void;
@@ -29,6 +30,8 @@ export interface MkMap {
 interface MkPlace {
   name?: string;
   fullThoroughfare?: string;
+  formattedAddress?: string;
+  coordinate: MkCoordinate;
 }
 export interface MapKitJs {
   init(options: { authorizationCallback: (done: (token: string) => void) => void }): void;
@@ -41,6 +44,7 @@ export interface MapKitJs {
   CoordinateSpan: new (latDelta: number, lngDelta: number) => object;
   CoordinateRegion: new (center: MkCoordinate, span: object) => object;
   Style: new (options: object) => object;
+  CircleOverlay: new (center: MkCoordinate, radius: number, options: object) => MkOverlay;
   PolygonOverlay: new (points: MkCoordinate[][], options: object) => MkOverlay;
   Annotation: new (at: MkCoordinate, factory: () => HTMLElement, options: object) => object;
   PointOfInterestFilter: { excludingAllCategories: object };
@@ -50,6 +54,16 @@ export interface MapKitJs {
       done: (error: Error | null, data: { results: MkPlace[] }) => void,
     ): void;
   };
+  Search: new () => {
+    search(query: string, done: (error: Error | null, data: { places: MkPlace[] }) => void): void;
+  };
+}
+
+/** A searched address and where it is. */
+export interface Found {
+  lat: number;
+  lng: number;
+  address: string | null;
 }
 
 export const MAPKIT_TOKEN = new InjectionToken<string>('MAPKIT_TOKEN', {
@@ -100,6 +114,24 @@ export class MapKit {
       new mapkit.Geocoder().reverseLookup(new mapkit.Coordinate(lat, lng), (error, data) => {
         const place = error ? undefined : data.results[0];
         resolve(place?.fullThoroughfare ?? place?.name ?? null);
+      });
+    });
+  }
+
+  /** Apple's best match for a typed address, or null when there is none or no MapKit. */
+  async search(query: string): Promise<Found | null> {
+    const mapkit = await this.load();
+    if (!mapkit) return null;
+    return new Promise((resolve) => {
+      new mapkit.Search().search(query, (error, data) => {
+        const place = error ? undefined : data.places[0];
+        if (!place) return resolve(null);
+        const { latitude, longitude } = place.coordinate;
+        resolve({
+          lat: latitude,
+          lng: longitude,
+          address: place.fullThoroughfare ?? place.formattedAddress ?? place.name ?? null,
+        });
       });
     });
   }

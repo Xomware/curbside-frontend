@@ -1,0 +1,53 @@
+<main class="page">
+  <h1 class="sign">New street</h1>
+  <p>Center the map on your street. Curbside outlines the houses around it.</p>
+
+  <div
+    #canvas
+    class="preview"
+    [hidden]="preview() === 'none'"
+    role="img"
+    [attr.aria-label]="
+      center() ? 'Map of your street and how far it reaches' : 'Map, no street chosen yet'
+    "
+  ></div>
+
+  <form class="editor" [formGroup]="form" (ngSubmit)="create()">
+    <button class="btn" type="button" [disabled]="busy()" (click)="useMyLocation()">
+      Use my location
+    </button>
+
+    <div class="field">
+      <label for="setup-query">Or search an address</label>
+      <div class="search">
+        <input
+          id="setup-query"
+          formControlName="query"
+          autocomplete="street-address"
+          (keydown.enter)="$event.preventDefault(); search()"
+        />
+        <button class="btn" type="button" [disabled]="busy()" (click)="search()">Find</button>
+      </div>
+    </div>
+
+    <fieldset class="choice">
+      <legend>How far</legend>
+      @for (r of radii; track r) {
+        <label><input type="radio" formControlName="radius" [value]="r" /> {{ r }} m</label>
+      }
+    </fieldset>
+
+    <div class="field">
+      <label for="setup-name">Street name</label>
+      <input id="setup-name" formControlName="name" maxlength="80" autocomplete="off" />
+    </div>
+
+    @if (message(); as text) {
+      <p class="notice" role="alert">{{ text }}</p>
+    }
+
+    <button class="btn btn--green" type="submit" [disabled]="!center() || form.invalid || busy()">
+      {{ busy() ? 'Working…' : 'Make the map' }}
+    </button>
+  </form>
+</main>
