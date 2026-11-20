@@ -16,6 +16,16 @@ export const REVERSE_GEOCODE = new InjectionToken<
   },
 });
 
+export interface NewPlace {
+  name: string;
+  center: { lat: number; lng: number };
+  radius_m: number;
+}
+
+/** footprints_fetch runs after `POST /maps` answers; Overpass usually takes seconds, rarely a minute. */
+const OUTLINE_POLL_MS = 3000;
+const OUTLINE_POLLS = 20;
+
 export type MapStatus = 'loading' | 'none' | 'ready' | 'failed';
 
 /** The account's place and its households. MVP has one place per account: the first map in `GET /maps`. */
@@ -59,6 +69,34 @@ export class MapStore {
       console.error('Map load failed', error);
       this.status.set('failed');
     }
+  }
+
+  /** Makes the account's place, then polls until its outlines are fetched. Plaques work in the meantime. */
+  async createPlace(body: NewPlace): Promise<void> {
+    const created = await this.api.request<Place>('POST', '/maps', body);
+    this.place.set(created);
+    this.households.set([]);
+    this.footprints.set([]);
+    this.pending = Promise.resolve();
+    this.status.set('ready');
+    void this.awaitOutlines();
+  }
+
+  private async awaitOutlines(): Promise<void> {
+    try {
+      for (let poll = 0; poll < OUTLINE_POLLS; poll++) {
+        await new Promise((resolve) => setTimeout(resolve, OUTLINE_POLL_MS));
+        const place = this.place();
+        if (!place) return;
+        await this.fetch(place.id);
+        if (this.place()?.footprint.status !== 'pending') break;
+      }
+    } catch (error) {
+      // The next page load picks the outlines up.
+      console.warn('Outline poll failed', error);
+      return;
+    }
+    await this.loadFootprints();
   }
 
   /** Picks up what a capture wrote. Apply answers with ids only, so the map is the cheapest complete copy. */

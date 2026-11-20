@@ -1,0 +1,17 @@
+.preview {
+  height: 220px;
+  overflow: hidden;
+  border: 2px solid var(--rule);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.search {
+  display: flex;
+  gap: var(--space-2);
+
+  input {
+    flex: 1;
+    min-width: 0;
+  }
+}

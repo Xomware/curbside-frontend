@@ -89,9 +89,53 @@ describe('MapPage', () => {
     expect(panel.textContent).toContain('Pumpernickel');
   });
 
-  it('points to the iPhone app when there is no street yet', async () => {
-    fetchMock.mockResolvedValueOnce(json(200, { data: [] }));
-    await render('Set up your street in the Curbside iPhone app');
+  it('sets up a street from your location when there is none yet', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout'] });
+    Object.defineProperty(navigator, 'geolocation', {
+      configurable: true,
+      value: {
+        getCurrentPosition: (done: PositionCallback) =>
+          done({ coords: { latitude: 40, longitude: -75 } } as GeolocationPosition),
+      },
+    });
+    fetchMock
+      .mockResolvedValueOnce(json(200, { data: [] }))
+      .mockResolvedValueOnce(
+        json(201, { data: { ...place, footprint: { status: 'pending', version: 0 } } }),
+      );
+    const { fixture, el } = await render('New street');
+    const make = [...el.querySelectorAll('button')].find((b) => b.textContent?.includes('Make'));
+    expect(make?.disabled).toBe(true);
+
+    [...el.querySelectorAll('button')].find((b) => b.textContent?.includes('my location'))?.click();
+    const name = el.querySelector<HTMLInputElement>('#setup-name')!;
+    name.value = 'Quillfeather Ln';
+    name.dispatchEvent(new Event('input'));
+    await fixture.whenStable();
+    make?.click();
+    await vi.waitFor(async () => {
+      await fixture.whenStable();
+      expect(el.querySelector('h1')?.textContent).toBe('Quillfeather Ln');
+    });
+
+    const [url, init] = fetchMock.mock.calls[1];
+    expect(url).toBe('https://api.curbside.xomware.com/v1/maps');
+    expect(JSON.parse(init.body)).toEqual({
+      name: 'Quillfeather Ln',
+      center: { lat: 40, lng: -75 },
+      radius_m: 300,
+    });
+
+    // Outlines are fetched server-side after create; the page polls the map until they land.
+    fetchMock
+      .mockResolvedValueOnce(json(200, { data: { map: place, households: [] } }))
+      .mockResolvedValueOnce(
+        json(200, { data: { status: 'ready', version: 2, url: 'https://s3/x' } }),
+      )
+      .mockResolvedValueOnce(new Response(JSON.stringify(collection)));
+    await vi.advanceTimersByTimeAsync(3000);
+    await vi.waitFor(() => expect(TestBed.inject(MapStore).footprints().length).toBeGreaterThan(0));
+    vi.useRealTimers();
   });
 
   it('retries a failed load', async () => {
