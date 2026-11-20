@@ -28,8 +28,4 @@ export class Shell implements OnInit {
   ngOnInit(): void {
     void this.store.load();
   }
-
-  protected signOut(): void {
-    this.auth.logOut();
-  }
 }
