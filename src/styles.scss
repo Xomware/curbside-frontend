@@ -502,3 +502,68 @@ a {
     animation-delay: calc(var(--i, 0) * 110ms);
   }
 }
+
+// Full-screen wait, shared by <xom-loading> and the pre-boot splash in index.html.
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  min-height: 70dvh;
+  padding: var(--space-4) var(--space-3);
+}
+
+.loading__pole {
+  width: 160px;
+  height: auto;
+  // The foot of the pole sinks behind the road.
+  clip-path: inset(0 0 22% 0);
+  margin-bottom: -38px;
+  transform-origin: 46% 100%;
+  animation: loading-sway 2.4s ease-in-out infinite;
+}
+
+.loading__road {
+  width: 180px;
+  height: 14px;
+  border-top: 4px solid var(--curb);
+  border-radius: 2px;
+  background:
+    repeating-linear-gradient(90deg, var(--lane) 0 18px, transparent 18px 34px) 0 50% / 200% 2px
+      no-repeat,
+    var(--asphalt);
+  animation: loading-road 0.9s linear infinite;
+}
+
+.loading__label {
+  color: var(--ink2);
+  font: 900 11px/1.4 var(--font);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+@keyframes loading-sway {
+  0%,
+  100% {
+    rotate: -2.5deg;
+  }
+  50% {
+    rotate: 2.5deg;
+  }
+}
+
+@keyframes loading-road {
+  to {
+    background-position:
+      -34px 50%,
+      0 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading__pole,
+  .loading__road {
+    animation: none;
+  }
+}
