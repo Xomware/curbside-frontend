@@ -4,12 +4,19 @@
     <nav aria-label="Account">
       <a
         class="btn-text"
-        routerLink="/settings"
+        routerLink="/"
+        routerLinkActive="current"
+        [routerLinkActiveOptions]="{ exact: true }"
+        ariaCurrentWhenActive="page"
+        >Street</a
+      >
+      <a
+        class="btn-text"
+        routerLink="/profile"
         routerLinkActive="current"
         ariaCurrentWhenActive="page"
-        >Settings</a
+        >Profile</a
       >
-      <button class="btn-text" type="button" (click)="signOut()">Sign out</button>
     </nav>
   </header>
 

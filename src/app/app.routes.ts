@@ -6,6 +6,7 @@ import { CapturePage } from './pages/capture/capture-page';
 import { HouseholdPage } from './pages/household/household-page';
 import { LandingPage } from './pages/landing/landing';
 import { MapPage } from './pages/map/map-page';
+import { ProfilePage } from './pages/profile/profile';
 import { PrivacyPage } from './pages/privacy/privacy';
 import { SettingsPage } from './pages/settings/settings';
 import { Shell } from './pages/shell/shell';
@@ -32,6 +33,7 @@ export const routes: Routes = [
       { path: '', component: MapPage, title: 'Curbside' },
       { path: 'households/:id', component: HouseholdPage, title: 'Household · Curbside' },
       { path: 'capture', component: CapturePage, title: 'Talk · Curbside' },
+      { path: 'profile', component: ProfilePage, title: 'Profile · Curbside' },
       { path: 'settings', component: SettingsPage, title: 'Settings · Curbside' },
     ],
   },

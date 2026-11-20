@@ -329,6 +329,27 @@ a {
 
 // House-number plaque fused to a street-name blade (curbside-ios HousePlaque). Global: map annotations are
 // built outside Angular's style encapsulation.
+// A plaque that opens a household card.
+.plaque-link {
+  display: inline-flex;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  align-items: center;
+  min-height: 44px;
+  border-radius: 6px;
+  text-decoration: none;
+
+  &:hover .plaque {
+    filter: brightness(1.12);
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
+}
+
 .plaque {
   display: inline-flex;
   align-items: center;

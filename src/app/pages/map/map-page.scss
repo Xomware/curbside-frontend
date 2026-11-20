@@ -100,26 +100,6 @@ ul {
   }
 }
 
-.plaque-link {
-  display: inline-flex;
-  padding: 0;
-  border: 0;
-  background: none;
-  cursor: pointer;
-  align-items: center;
-  min-height: 44px;
-  border-radius: 6px;
-  text-decoration: none;
-
-  &:hover .plaque {
-    filter: brightness(1.12);
-  }
-
-  &:active {
-    transform: translateY(1px);
-  }
-}
-
 // The yard-sign panel from the mockup's empty street.
 .yard {
   display: inline-block;

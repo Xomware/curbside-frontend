@@ -1,0 +1,70 @@
+<main class="profile">
+  @if (account.account(); as me) {
+    <header class="me">
+      <span class="monogram" aria-hidden="true">{{ initials() }}</span>
+      <div>
+        <h1>{{ me.display_name }}</h1>
+        <p class="muted">On Curbside since {{ since() }}</p>
+        <p class="tags">
+          @for (p of providers(); track p) {
+            <span class="tag">{{ p }}</span>
+          }
+        </p>
+      </div>
+    </header>
+  }
+
+  @switch (map.status()) {
+    @case ('ready') {
+      @if (map.place(); as place) {
+        <section aria-labelledby="street-heading">
+          <h2 id="street-heading" class="eyebrow">Your street</h2>
+          <a class="sign street" routerLink="/">{{ place.name }}</a>
+          <dl class="stats">
+            @for (s of stats(); track s.label) {
+              <div>
+                <dt>{{ s.label }}</dt>
+                <dd>{{ s.value }}</dd>
+              </div>
+            }
+          </dl>
+        </section>
+
+        @if (due().length) {
+          <section aria-labelledby="due-heading">
+            <h2 id="due-heading" class="eyebrow">Due for a hello</h2>
+            <ul class="due">
+              @for (h of due(); track h.id) {
+                <li>
+                  <a class="plaque-link" [routerLink]="['/households', h.id]">
+                    <xom-plaque [number]="number(h)" [name]="h.private.label" />
+                  </a>
+                  <span class="muted">{{ talked(h.private.last_talked_at) }}</span>
+                </li>
+              }
+            </ul>
+          </section>
+        }
+      }
+    }
+    @case ('none') {
+      <section>
+        <h2 class="eyebrow">Your street</h2>
+        <p>No street yet.</p>
+        <a class="btn btn--green" routerLink="/">Set up your street</a>
+      </section>
+    }
+    @case ('failed') {
+      <p class="notice" role="alert">Couldn't load your street.</p>
+      <button class="btn" type="button" (click)="map.ensure()">Try again</button>
+    }
+    @default {
+      <xom-loading label="Loading your street" />
+    }
+  }
+
+  <nav class="actions" aria-label="Account">
+    <a class="btn" routerLink="/settings">Settings</a>
+    <button class="btn-text" type="button" (click)="signOut()">Sign out</button>
+  </nav>
+</main>
