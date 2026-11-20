@@ -9,7 +9,7 @@ import {
 
 import { Reveal } from './reveal';
 
-/** One household card filling in: the mailbox flag goes up, then people, kids, pets and the last thing said. */
+/** One household card filling in: the name blade, then people, kids, pets and the last thing said. */
 @Component({
   selector: 'xom-landing-people',
   hostDirectives: [Reveal],

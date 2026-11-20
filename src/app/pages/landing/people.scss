@@ -16,10 +16,10 @@
 }
 
 .top {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 18px;
-  align-items: end;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
   padding-bottom: 18px;
   border-bottom: 2px solid var(--rule);
 
@@ -32,7 +32,6 @@
 
 .blade {
   display: inline-block;
-  margin-top: 8px;
   padding: 10px 16px 7px;
   border-radius: 8px;
   background: var(--green);
@@ -45,29 +44,21 @@
 }
 
 .talked {
-  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  align-self: stretch;
+  gap: var(--space-2);
   color: var(--ink2);
   font-size: 14px;
 }
 
-.mailbox {
-  .post {
-    fill: var(--ink2);
-  }
-  .box {
-    fill: var(--mailbox);
-  }
-  .plate {
-    fill: var(--sign-white);
-  }
-  text {
-    font: 700 22px var(--mono);
-    fill: var(--sign-ink);
-  }
-  .flag {
-    fill: var(--stop);
-    transform-origin: 135px 21px;
-  }
+// The card's real "Talked today" button, shown as text: the landing card is a picture, not a control.
+.today {
+  color: var(--green);
+  font: 800 14px/1 var(--font);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 .row {
@@ -187,21 +178,12 @@ time {
     transform: translateY(18px);
   }
 }
-@keyframes flag {
-  from {
-    transform: rotate(90deg);
-  }
-}
 
 @media (prefers-reduced-motion: no-preference) {
   .row,
   .top {
     opacity: 0;
   }
-  .flag {
-    transform: rotate(90deg);
-  }
-
   :host(.seen) {
     .top {
       opacity: 1;
@@ -211,10 +193,6 @@ time {
       opacity: 1;
       animation: rise 0.6s cubic-bezier(0.2, 0.8, 0.25, 1) both;
       animation-delay: calc(0.7s + var(--i) * 160ms);
-    }
-    .flag {
-      transform: none;
-      animation: flag 0.6s cubic-bezier(0.3, 1.6, 0.5, 1) 0.9s both;
     }
   }
 }
