@@ -6,6 +6,7 @@ import { AccountStore } from '../../account/account-store';
 import { failureMessage } from '../../account/messages';
 import { AuthSession } from '../../auth/auth-session';
 import { Provider } from '../../auth/cognito';
+import { takeReturn } from '../../auth/return-to';
 import { ProviderButton } from '../../ui/provider-button';
 
 /** First sign-in with no account: start a new one, or attach this sign-in to the account you already have. */
@@ -37,7 +38,7 @@ export class WelcomePage {
     this.error.set(null);
     try {
       await this.account.create(this.name.value.trim());
-      await this.router.navigateByUrl('/');
+      await this.router.navigateByUrl(takeReturn() ?? '/');
     } catch (error) {
       this.error.set(failureMessage(error));
     } finally {

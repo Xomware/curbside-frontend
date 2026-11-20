@@ -22,13 +22,16 @@ export interface NewPlace {
   radius_m: number;
 }
 
+// Which of the account's streets is open, across tabs and visits. Only the id: nothing about the street itself.
+const CURRENT = 'curbside.map';
+
 /** footprints_fetch runs after `POST /maps` answers; Overpass usually takes seconds, rarely a minute. */
 const OUTLINE_POLL_MS = 3000;
 const OUTLINE_POLLS = 20;
 
 export type MapStatus = 'loading' | 'none' | 'ready' | 'failed';
 
-/** The account's place and its households. MVP has one place per account: the first map in `GET /maps`. */
+/** The open street and its households. An account can have several (its own, and ones shared with it). */
 @Injectable({ providedIn: 'root' })
 export class MapStore {
   private readonly api = inject(Api);
@@ -37,6 +40,7 @@ export class MapStore {
   private pending: Promise<void> | null = null;
 
   readonly status = signal<MapStatus>('loading');
+  readonly maps = signal<Place[]>([]);
   readonly place = signal<Place | null>(null);
   readonly households = signal<Household[]>([]);
   /** Empty until the file loads, and for good when the place has none; households then stand alone as plaques. */
@@ -58,12 +62,14 @@ export class MapStore {
   private async load(): Promise<void> {
     this.status.set('loading');
     try {
-      const [first] = await this.api.request<Place[]>('GET', '/maps');
-      if (!first) {
+      const maps = await this.api.request<Place[]>('GET', '/maps');
+      this.maps.set(maps);
+      const open = maps.find((m) => m.id === localStorage.getItem(CURRENT)) ?? maps[0];
+      if (!open) {
         this.status.set('none');
         return;
       }
-      await this.fetch(first.id);
+      await this.fetch(open.id);
       this.status.set('ready');
     } catch (error) {
       console.error('Map load failed', error);
@@ -71,9 +77,22 @@ export class MapStore {
     }
   }
 
+  /** Switches to another street, re-reading the list: it may have just gained a shared one or lost one. */
+  async open(id: string | null): Promise<void> {
+    if (id) localStorage.setItem(CURRENT, id);
+    else localStorage.removeItem(CURRENT);
+    this.selection.set(null);
+    this.footprints.set([]);
+    this.pending = this.load();
+    await this.pending;
+    if (this.status() === 'ready') void this.loadFootprints();
+  }
+
   /** Makes the account's place, then polls until its outlines are fetched. Plaques work in the meantime. */
   async createPlace(body: NewPlace): Promise<void> {
     const created = await this.api.request<Place>('POST', '/maps', body);
+    localStorage.setItem(CURRENT, created.id);
+    this.maps.update((maps) => [...maps, created]);
     this.place.set(created);
     this.households.set([]);
     this.footprints.set([]);

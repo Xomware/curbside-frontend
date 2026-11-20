@@ -6,6 +6,8 @@ export interface Place {
   name: string;
   center: { lat: number; lng: number };
   radius_m: number;
+  /** The caller's role: the owner shares and deletes; members edit. */
+  role: 'owner' | 'member';
   footprint: { status: 'pending' | 'ready' | 'empty' | 'failed'; version: number };
   version: number;
 }

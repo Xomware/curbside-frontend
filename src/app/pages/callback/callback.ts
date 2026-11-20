@@ -6,6 +6,7 @@ import { failureMessage } from '../../account/messages';
 import { ApiError } from '../../api/api';
 import { AuthSession, Pending } from '../../auth/auth-session';
 import { Tokens, providerOf } from '../../auth/cognito';
+import { takeReturn } from '../../auth/return-to';
 import { Loading } from '../../ui/loading';
 
 /** Lands the Cognito redirect: exchanges the code, then does what the sign-in was started for. */
@@ -52,7 +53,7 @@ export class CallbackPage implements OnInit {
       return;
     }
     if (pending.linkIdToken && !(await this.linkOrphan(pending.linkIdToken))) return;
-    await this.router.navigateByUrl('/', { replaceUrl: true });
+    await this.router.navigateByUrl(takeReturn() ?? '/', { replaceUrl: true });
   }
 
   /**

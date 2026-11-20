@@ -3,7 +3,22 @@
     <header class="me">
       <span class="monogram" aria-hidden="true">{{ initials() }}</span>
       <div>
-        <h1>{{ me.display_name }}</h1>
+        @if (editing()) {
+          <form class="rename" (submit)="rename($event)">
+            <label class="sr-only" for="profile-name">Your name</label>
+            <input id="profile-name" [formControl]="name" maxlength="80" autocomplete="name" />
+            <button class="btn btn--green" type="submit" [disabled]="name.invalid || saving()">
+              {{ saving() ? 'Saving…' : 'Save' }}
+            </button>
+            <button class="btn-text" type="button" (click)="editing.set(false)">Cancel</button>
+          </form>
+          @if (renameFailed()) {
+            <p class="notice" role="alert">Couldn't save your name. Try again.</p>
+          }
+        } @else {
+          <h1>{{ me.display_name }}</h1>
+          <button class="btn-text" type="button" (click)="edit()">Edit name</button>
+        }
         <p class="muted">On Curbside since {{ since() }}</p>
         <p class="tags">
           @for (p of providers(); track p) {
@@ -29,6 +44,35 @@
             }
           </dl>
         </section>
+
+        @if (map.maps().length > 1) {
+          <section aria-labelledby="streets-heading">
+            <h2 id="streets-heading" class="eyebrow">Your streets</h2>
+            <ul class="streets">
+              @for (m of map.maps(); track m.id) {
+                <li>
+                  <button
+                    class="sign sign--small"
+                    type="button"
+                    [attr.aria-current]="m.id === place.id ? 'true' : null"
+                    (click)="map.open(m.id)"
+                  >
+                    {{ m.name }}
+                  </button>
+                  <span class="muted">
+                    {{
+                      m.id === place.id ? 'Open' : m.role === 'owner' ? 'Yours' : 'Shared with you'
+                    }}
+                  </span>
+                </li>
+              }
+            </ul>
+          </section>
+        }
+
+        @if (account.account(); as me) {
+          <xom-street-sharing [place]="place" [accountId]="me.account_id" />
+        }
 
         @if (due().length) {
           <section aria-labelledby="due-heading">

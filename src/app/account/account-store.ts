@@ -51,6 +51,12 @@ export class AccountStore {
     this.status.set('ready');
   }
 
+  async rename(displayName: string): Promise<void> {
+    this.account.set(
+      await this.api.request<Account>('PATCH', '/me', { display_name: displayName }),
+    );
+  }
+
   async unlink(sub: string): Promise<void> {
     this.account.set(
       await this.api.request<Account>('DELETE', `/me/identities/${encodeURIComponent(sub)}`),

@@ -45,6 +45,22 @@ describe('ProfilePage', () => {
           ],
           'GET /maps': [json(200, { data: [place] })],
           'GET /maps/map1': [json(200, { data: { map: place, households: homes } })],
+          'GET /maps/map1/members': [
+            json(200, {
+              data: [
+                { account_id: 'a', display_name: 'Dom Giordano', role: 'owner', created_at: '' },
+                { account_id: 'b', display_name: 'Sam Rivera', role: 'member', created_at: '' },
+              ],
+            }),
+          ],
+          'POST /maps/map1/invites': [
+            json(201, { data: { code: 'K7QW2M9XRT', expires_at: '2026-11-27T12:00:00Z' } }),
+          ],
+          'PATCH /me': [
+            json(200, {
+              data: { account_id: 'a', display_name: 'Dominick', created_at: '', identities: [] },
+            }),
+          ],
         }),
       ),
     );
@@ -71,5 +87,34 @@ describe('ProfilePage', () => {
     const due = [...el.querySelectorAll('.due li')].map((li) => li.textContent);
     expect(due[0]).toContain('Mossbottom');
     expect(due[0]).toContain("Haven't talked yet");
+  });
+
+  it('renames you, lists who the street is shared with, and makes an invite link', async () => {
+    const harness = await RouterTestingHarness.create('/profile');
+    const el = harness.routeNativeElement as HTMLElement;
+    const button = (text: string) =>
+      [...el.querySelectorAll('button')].find((b) => b.textContent?.trim() === text);
+    const settle = (check: () => void) =>
+      vi.waitFor(() => {
+        harness.detectChanges();
+        check();
+      });
+    await settle(() => expect(el.textContent).toContain('Sam Rivera'));
+    expect(el.textContent).toContain('Owner');
+
+    button('Invite someone')?.click();
+    await settle(() =>
+      expect(el.querySelector<HTMLInputElement>('#invite-link')?.value).toBe(
+        `${location.origin}/invite/K7QW2M9XRT`,
+      ),
+    );
+
+    button('Edit name')?.click();
+    await settle(() => expect(el.querySelector('#profile-name')).not.toBeNull());
+    const input = el.querySelector<HTMLInputElement>('#profile-name')!;
+    input.value = 'Dominick';
+    input.dispatchEvent(new Event('input'));
+    button('Save')?.click();
+    await settle(() => expect(el.querySelector('h1')?.textContent).toBe('Dominick'));
   });
 });
