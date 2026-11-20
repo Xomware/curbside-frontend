@@ -22,8 +22,8 @@
   display: flex;
   justify-content: center;
   align-items: flex-end;
-  height: min(76svh, 700px);
-  overflow: hidden;
+  // Clip only the foot of the pole into the sidewalk; never the cap, whatever the viewport height.
+  clip-path: inset(-100vh -100vw 0 -100vw);
 
   &::after {
     content: '';
@@ -40,7 +40,7 @@
 
 // The art is a tall pole; the stage clips its foot so it reads as planted in the sidewalk.
 .pole {
-  --w: clamp(250px, 36vw, 500px);
+  --w: clamp(220px, min(36vw, 72svh), 500px);
   display: block;
   width: var(--w);
   height: auto;
@@ -161,12 +161,11 @@ xom-sign-in-buttons {
 
   .stage {
     grid-row: 1;
-    height: min(38svh, 330px);
     margin-top: 76px;
   }
 
   .pole {
-    --w: min(72vw, 300px);
+    --w: min(72vw, 300px, 40svh);
     margin-bottom: calc(var(--w) * -0.24);
   }
 
