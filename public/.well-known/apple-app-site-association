@@ -1,0 +1,10 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["A3HMLDS2AL.com.Xomware.Curbside"],
+        "components": [{ "/": "/invite/*", "comment": "Street invite links open the app" }]
+      }
+    ]
+  }
+}
