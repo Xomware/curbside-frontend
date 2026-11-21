@@ -27,7 +27,7 @@
             <button class="btn btn--green" type="button" [disabled]="busy()" (click)="join()">
               {{ busy() ? 'Joining…' : 'Join ' + inv.map.name }}
             </button>
-            <a class="btn-text" routerLink="/">Not now</a>
+            <a class="btn-text" [routerLink]="next.path" [queryParams]="next.query">Not now</a>
           }
         </main>
       }

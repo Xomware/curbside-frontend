@@ -115,6 +115,10 @@ ul {
     inset 0 0 0 3px var(--sign-ink);
 }
 
+.hint {
+  font-weight: 700;
+}
+
 .dock {
   display: flex;
   align-items: center;

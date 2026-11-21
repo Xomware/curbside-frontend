@@ -22,6 +22,9 @@ export interface LatLng {
   lng: number;
 }
 
+// Close enough that a house is a thumb-sized target, far enough to see the neighbours. Matches iOS.
+const CAMERA_DISTANCE = 250;
+
 /**
  * The place on MapKit JS: muted base map, building outlines, a plaque per household. Taps and long-presses go
  * out as coordinates; hit-testing is MapStore's, so it stays testable without MapKit.
@@ -31,7 +34,12 @@ export interface LatLng {
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { '[class.unavailable]': "state() === 'unavailable'" },
   template: `
-    <div #canvas class="canvas" [hidden]="state() !== 'ready'"></div>
+    <div #canvas class="canvas" [hidden]="state() === 'unavailable'"></div>
+    @if (state() === 'ready') {
+      <button class="recenter" type="button" (click)="recenter()">
+        {{ home() ? 'Back to my house' : 'Recenter' }}
+      </button>
+    }
     @switch (state()) {
       @case ('loading') {
         <p class="state muted" role="status">Loading the map…</p>
@@ -53,6 +61,8 @@ export class PlaceMap {
   readonly households = input.required<Household[]>();
   readonly footprints = input<Footprint[]>([]);
   readonly selection = input<Spot | null>(null);
+  /** Where the camera opens and recenters: your own house, else the middle of the street. */
+  readonly home = input<LatLng | null>(null);
   readonly open = output<string>();
   readonly tap = output<LatLng>();
   readonly press = output<LatLng>();
@@ -85,15 +95,10 @@ export class PlaceMap {
       this.state.set('unavailable');
       return;
     }
-    const { center, radius_m } = this.place();
     const dark = matchMedia('(prefers-color-scheme: dark)');
-    // Opens on the middle of the place, not all of it: at the full radius every plaque is a dot.
-    const span = new mk.CoordinateSpan(
-      radius_m / 111_320,
-      radius_m / (111_320 * Math.cos((center.lat * Math.PI) / 180)),
-    );
     const map = new mk.Map(this.canvas().nativeElement, {
-      region: new mk.CoordinateRegion(new mk.Coordinate(center.lat, center.lng), span),
+      center: this.focus(mk),
+      cameraDistance: CAMERA_DISTANCE,
       mapType: mk.Map.MapTypes.MutedStandard,
       pointOfInterestFilter: mk.PointOfInterestFilter.excludingAllCategories,
       colorScheme: dark.matches ? mk.Map.ColorSchemes.Dark : mk.Map.ColorSchemes.Light,
@@ -111,6 +116,18 @@ export class PlaceMap {
     map.addEventListener('long-press', (event) => this.press.emit(at(event)));
     this.view.set({ mk, map });
     this.state.set('ready');
+  }
+
+  protected recenter(): void {
+    const view = this.view();
+    if (!view) return;
+    view.map.setCenterAnimated(this.focus(view.mk), true);
+    view.map.setCameraDistanceAnimated(CAMERA_DISTANCE, true);
+  }
+
+  private focus(mk: MapKitJs) {
+    const { lat, lng } = this.home() ?? this.place().center;
+    return new mk.Coordinate(lat, lng);
   }
 
   private drawOutlines(

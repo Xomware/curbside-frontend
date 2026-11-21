@@ -18,3 +18,32 @@
   padding: var(--space-4);
   text-align: center;
 }
+
+// Top left: the OSM credit takes the top right and MapKit's own controls the bottom.
+.recenter {
+  position: absolute;
+  top: var(--space-2);
+  left: var(--space-2);
+  min-height: 44px;
+  padding: 3px 12px 0;
+  border: 0;
+  border-radius: 6px;
+  background: var(--sign-white);
+  color: var(--sign-ink);
+  font: 800 12px/1 var(--font);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow:
+    inset 0 0 0 1.5px var(--sign-white),
+    inset 0 0 0 3px var(--sign-ink),
+    0 2px 0 rgb(0 0 0 / 25%);
+
+  &:hover {
+    filter: brightness(0.94);
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
+}

@@ -70,6 +70,18 @@ describe('InvitePage', () => {
     expect(localStorage.getItem('curbside.map')).toBe('map2');
   });
 
+  it('mid-walkthrough, joining goes on to adding your home', async () => {
+    sessionStorage.setItem('curbside.onboarding', '1');
+    TestBed.inject(AuthSession).adopt(fakeTokens());
+    const { el, settle } = await open();
+    await settle('Sam invited you to');
+    expect(el().querySelector('a.btn-text')?.getAttribute('href')).toBe('/welcome?step=home');
+
+    [...el().querySelectorAll('button')].find((b) => b.textContent?.includes('Join'))?.click();
+
+    await vi.waitFor(() => expect(TestBed.inject(Router).url).toBe('/welcome?step=home'));
+  });
+
   it('says so when the invite is used up', async () => {
     answers['GET /invites/K7QW2M9XRT'] = [
       json(404, { error: { code: 'invite_not_found', message: 'gone' } }),

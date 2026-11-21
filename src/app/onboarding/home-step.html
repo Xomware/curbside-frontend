@@ -1,0 +1,86 @@
+@switch (mode()) {
+  @case ('join') {
+    <p class="lead">Add your home to {{ store.place()?.name }}?</p>
+    <p>Everyone on the street sees it. You can skip this and add it later.</p>
+  }
+  @case ('failed') {
+    <p class="notice" role="alert">Couldn't reach Curbside.</p>
+    <button class="btn" type="button" (click)="load()">Try again</button>
+  }
+  @default {
+    <p class="lead">Where do you live?</p>
+    <p>
+      Your street map starts around your home and outlines the houses nearby. Only people you invite
+      can see it.
+    </p>
+  }
+}
+
+<div
+  #canvas
+  class="preview"
+  [hidden]="preview() === 'none'"
+  role="img"
+  [attr.aria-label]="found() ? 'Map around your home' : 'Map, no home chosen yet'"
+></div>
+
+<form class="editor" [formGroup]="form" (ngSubmit)="save()">
+  <button class="btn" type="button" [disabled]="busy()" (click)="useMyLocation()">
+    Use my location
+  </button>
+
+  <div class="field">
+    <label for="home-query">Or search your address</label>
+    <div class="search">
+      <input
+        id="home-query"
+        formControlName="query"
+        autocomplete="street-address"
+        (keydown.enter)="$event.preventDefault(); search()"
+      />
+      <button class="btn" type="button" [disabled]="busy()" (click)="search()">Find</button>
+    </div>
+  </div>
+
+  <p class="found" aria-live="polite">
+    @if (found(); as at) {
+      <span class="eyebrow">Found</span> {{ at.address ?? 'Your pin' }}
+    }
+  </p>
+
+  <div class="field">
+    <label for="home-label">Name on your sign</label>
+    <input
+      id="home-label"
+      formControlName="label"
+      maxlength="80"
+      autocomplete="off"
+      aria-describedby="home-label-hint"
+    />
+    <p id="home-label-hint" class="muted hint">Your family name works well, like "Rivera".</p>
+  </div>
+
+  @if (mode() === 'new') {
+    <div class="field">
+      <label for="home-street">Street name</label>
+      <input id="home-street" formControlName="street" maxlength="80" autocomplete="off" />
+    </div>
+  }
+
+  @if (message(); as text) {
+    <p class="notice" role="alert">{{ text }}</p>
+  }
+
+  <button
+    class="btn btn--green"
+    type="submit"
+    [disabled]="!found() || form.invalid || busy() || mode() === 'loading'"
+  >
+    {{ busy() ? 'Working…' : mode() === 'join' ? 'Add my home' : 'Put me on the map' }}
+  </button>
+  @if (mode() === 'join') {
+    <button class="btn-text skip" type="button" [disabled]="busy()" (click)="done.emit(null)">
+      Skip for now
+    </button>
+  }
+</form>
