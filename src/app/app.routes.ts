@@ -13,6 +13,7 @@ import { LandingPage } from './pages/landing/landing';
 import { MapPage } from './pages/map/map-page';
 import { ProfilePage } from './pages/profile/profile';
 import { PrivacyPage } from './pages/privacy/privacy';
+import { TermsPage } from './pages/terms/terms';
 import { SettingsPage } from './pages/settings/settings';
 import { Shell } from './pages/shell/shell';
 import { SignInPage } from './pages/sign-in/sign-in';
@@ -31,6 +32,7 @@ export const routes: Routes = [
   { path: 'invite/:code', component: InvitePage, title: 'Invite · Curbside' },
   { path: 'friend/:code', component: FriendInvitePage, title: 'Friend request · Curbside' },
   { path: 'privacy', component: PrivacyPage, title: 'Privacy · Curbside' },
+  { path: 'terms', component: TermsPage, title: 'Terms · Curbside' },
   { path: 'welcome', component: WelcomePage, canActivate: [signedIn], title: 'Welcome · Curbside' },
   {
     path: '',

@@ -41,7 +41,10 @@ import { LandingTalk } from './talk-demo';
     <footer>
       <div class="l-wrap">
         <span>Made by Xomware</span>
-        <a routerLink="/privacy">Privacy</a>
+        <nav>
+          <a routerLink="/privacy">Privacy</a>
+          <a routerLink="/terms">Terms</a>
+        </nav>
       </div>
     </footer>
   `,
@@ -77,6 +80,10 @@ import { LandingTalk } from './talk-demo';
       flex-wrap: wrap;
       justify-content: space-between;
       gap: 12px;
+    }
+    footer nav {
+      display: flex;
+      gap: 20px;
     }
     footer a {
       padding: 6px 0;
