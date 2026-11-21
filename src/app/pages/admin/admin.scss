@@ -1,0 +1,109 @@
+.admin {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  width: min(100%, 960px);
+  margin: 0 auto;
+  padding: var(--space-4) var(--space-3) max(var(--space-5), env(safe-area-inset-bottom));
+
+  > .sign {
+    align-self: flex-start;
+  }
+}
+
+.retry {
+  align-self: flex-start;
+  width: auto;
+  padding-inline: var(--space-4);
+}
+
+section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--space-2);
+  margin: 0;
+
+  div {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: var(--space-1);
+    padding: var(--space-3);
+    border-radius: 8px;
+    background: var(--surface);
+    box-shadow: inset 0 0 0 1.5px var(--rule);
+  }
+
+  dt {
+    color: var(--ink2);
+    font: 900 11px/1.3 var(--font);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  dd {
+    margin: 0;
+    font: 800 32px/1 var(--font);
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+// Wide tables scroll sideways on a phone; the padding keeps focus rings inside the clip.
+.scroll {
+  margin: 0 calc(-1 * var(--space-1));
+  padding: var(--space-1);
+  overflow-x: auto;
+  border-radius: 8px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+th,
+td {
+  padding: var(--space-2);
+  border-bottom: 1px solid var(--rule);
+  text-align: left;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+thead th {
+  color: var(--ink2);
+  font: 900 11px/1.3 var(--font);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+tbody th {
+  font-weight: 800;
+  white-space: normal;
+  min-width: 10em;
+}
+
+.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.date {
+  color: var(--ink2);
+}
+
+.name {
+  display: block;
+}
+
+tbody th .btn-text {
+  min-height: 32px;
+  margin-left: calc(-1 * var(--space-2));
+  font-size: 13px;
+}

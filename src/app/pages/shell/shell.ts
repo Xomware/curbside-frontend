@@ -28,7 +28,8 @@ export class Shell implements OnInit {
   }
 
   ngOnInit(): void {
-    void this.store.load();
+    // The admin guard may have loaded the account already.
+    if (this.store.status() !== 'ready') void this.store.load();
     void this.activity.load();
   }
 }

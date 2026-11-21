@@ -1,0 +1,121 @@
+<main class="admin">
+  <h1 class="sign">Admin</h1>
+
+  <p class="sr-only" role="status">{{ status() }}</p>
+  @if (error(); as message) {
+    <p class="notice" role="alert">{{ message }}</p>
+  }
+
+  @if (failed()) {
+    <p class="notice" role="alert">Couldn't load the admin data.</p>
+    <button class="btn retry" type="button" (click)="load()">Try again</button>
+  } @else if (stats(); as s) {
+    <section aria-labelledby="stats-heading">
+      <h2 id="stats-heading" class="eyebrow">Totals</h2>
+      <dl class="stats">
+        @for (stat of labels; track stat[0]) {
+          <div>
+            <dt>{{ stat[1] }}</dt>
+            <dd>{{ s[stat[0]] }}</dd>
+          </div>
+        }
+      </dl>
+    </section>
+
+    <section aria-labelledby="streets-heading">
+      <h2 id="streets-heading" class="eyebrow">Streets · {{ maps()?.length }}</h2>
+      <div class="scroll" role="region" aria-labelledby="streets-heading" tabindex="0">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Street</th>
+              <th scope="col">Owner</th>
+              <th scope="col" class="num">Members</th>
+              <th scope="col" class="num">Homes</th>
+              <th scope="col">Created</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (m of maps(); track m.map_id) {
+              <tr>
+                <th scope="row">
+                  <span class="name">{{ m.name }}</span>
+                  @if (deleting() === m.map_id) {
+                    <button
+                      class="btn-text danger"
+                      type="button"
+                      [disabled]="busy()"
+                      [attr.aria-label]="'Delete ' + m.name + ' for good'"
+                      (click)="remove(m)"
+                    >
+                      Delete for good
+                    </button>
+                    <button class="btn-text" type="button" (click)="deleting.set(null)">
+                      Keep
+                    </button>
+                  } @else {
+                    <button
+                      class="btn-text"
+                      type="button"
+                      [disabled]="busy()"
+                      [attr.aria-label]="'Delete ' + m.name"
+                      (click)="deleting.set(m.map_id)"
+                    >
+                      Delete
+                    </button>
+                  }
+                </th>
+                <td>{{ m.owner_name }}</td>
+                <td class="num">{{ m.member_count }}</td>
+                <td class="num">{{ m.household_count }}</td>
+                <td class="date">{{ date(m.created_at) }}</td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="5" class="muted">No streets.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      @if (deleting()) {
+        <p class="notice">
+          Deleting removes the street and every household, person, pet and note on it, for everyone
+          on it.
+        </p>
+      }
+    </section>
+
+    <section aria-labelledby="accounts-heading">
+      <h2 id="accounts-heading" class="eyebrow">Accounts · {{ accounts()?.length }}</h2>
+      <div class="scroll" role="region" aria-labelledby="accounts-heading" tabindex="0">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Name</th>
+              <th scope="col">Sign-in</th>
+              <th scope="col" class="num">Streets</th>
+              <th scope="col">Joined</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (a of accounts(); track a.account_id) {
+              <tr>
+                <th scope="row">{{ a.display_name }}</th>
+                <td>{{ providers(a) }}</td>
+                <td class="num">{{ a.map_count }}</td>
+                <td class="date">{{ date(a.created_at) }}</td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="4" class="muted">No accounts.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  } @else {
+    <xom-loading label="Counting the neighborhood" />
+  }
+</main>
