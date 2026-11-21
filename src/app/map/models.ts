@@ -22,6 +22,8 @@ export interface Person {
   birth_year_approx?: boolean;
   birthday?: string;
   notes?: string;
+  phone?: string;
+  email?: string;
 }
 
 export interface Pet {
