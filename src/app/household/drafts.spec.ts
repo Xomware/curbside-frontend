@@ -75,6 +75,21 @@ describe('drafts', () => {
     });
   });
 
+  it('sends phone and email, and clears them with null', () => {
+    const draft = { ...personDraft(odo), phone: ' 555-0101 ', email: 'odo@example.com' };
+    expect(personPatch(odo, draft)).toEqual({
+      version: 4,
+      phone: '555-0101',
+      email: 'odo@example.com',
+    });
+    const reachable = { ...odo, phone: '555-0101', email: 'odo@example.com' };
+    expect(personPatch(reachable, { ...personDraft(reachable), phone: '', email: ' ' })).toEqual({
+      version: 4,
+      phone: null,
+      email: null,
+    });
+  });
+
   it('explains what blocks a save', () => {
     expect(personProblem({ ...personDraft(), name: ' ' })).toBe('Add a name.');
     expect(personProblem({ ...personDraft(), name: 'A', birthYear: '18' }, 2026)).toBe(
@@ -82,6 +97,12 @@ describe('drafts', () => {
     );
     expect(personProblem({ ...personDraft(), name: 'A', birthYear: '2027' }, 2026)).not.toBeNull();
     expect(personProblem({ ...personDraft(), name: 'A', birthYear: '2026' }, 2026)).toBeNull();
+    expect(personProblem({ ...personDraft(), name: 'A', email: 'odo.example.com' })).toBe(
+      'That email address needs an @.',
+    );
+    expect(personProblem({ ...personDraft(), name: 'A', phone: '5'.repeat(41) })).toBe(
+      'Keep the phone number under 40 characters.',
+    );
     expect(petProblem({ name: 'P', species: 'x'.repeat(41), notes: '' })).toBe(
       'Keep the kind of animal under 40 characters.',
     );

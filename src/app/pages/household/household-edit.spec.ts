@@ -134,4 +134,41 @@ describe('HouseholdPage editing', () => {
     expect(entry('Waffles')).toBeUndefined();
     expect(t.sent('DELETE', `${HH}/pets/x1`)).toHaveLength(1);
   });
+
+  it('saves a phone and email, then links them and offers a contact card', async () => {
+    await editBarnaby();
+    const saved: Person = {
+      ...pumpernickel.private.people![0],
+      version: 2,
+      phone: '555-0101',
+      email: 'barnaby@example.com',
+    };
+    t.answers[`PATCH ${HH}/people/p1`] = [json(200, { data: saved })];
+
+    type('person-phone', '555-0101');
+    type('person-email', 'barnaby@example.com');
+    t.button('Save')?.click();
+
+    await t.settle(() => expect(t.el().querySelector('a[href="tel:555-0101"]')).not.toBeNull());
+    expect(t.sent('PATCH', `${HH}/people/p1`)).toEqual([
+      { version: 1, phone: '555-0101', email: 'barnaby@example.com' },
+    ]);
+    expect(t.el().querySelector('a[href="mailto:barnaby@example.com"]')).not.toBeNull();
+
+    const blobs: Blob[] = [];
+    vi.spyOn(URL, 'createObjectURL').mockImplementation((blob) => {
+      blobs.push(blob as Blob);
+      return 'blob:card';
+    });
+    vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => undefined);
+    const click = vi
+      .spyOn(HTMLAnchorElement.prototype, 'click')
+      .mockImplementation(() => undefined);
+    t.button('Save contact')?.click();
+
+    expect(click).toHaveBeenCalledOnce();
+    expect(blobs[0].type).toBe('text/vcard');
+    expect(await blobs[0].text()).toContain('ADR;TYPE=HOME:;;11 Quillfeather Ln;;;;');
+    vi.restoreAllMocks();
+  });
 });

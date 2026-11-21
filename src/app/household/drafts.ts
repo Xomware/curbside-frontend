@@ -8,6 +8,8 @@ export interface PersonDraft {
   role: 'adult' | 'kid';
   birthYear: string;
   approx: boolean;
+  phone: string;
+  email: string;
   notes: string;
 }
 
@@ -27,6 +29,8 @@ export function personDraft(person?: Person): PersonDraft {
     role: person?.role ?? 'adult',
     birthYear: person?.birth_year?.toString() ?? '',
     approx: person?.birth_year_approx ?? false,
+    phone: person?.phone ?? '',
+    email: person?.email ?? '',
     notes: person?.notes ?? '',
   };
 }
@@ -45,6 +49,10 @@ export function personProblem(
   const year = draft.birthYear.trim();
   if (year && !(/^\d{4}$/.test(year) && +year >= 1900 && +year <= thisYear))
     return `Birth year should be between 1900 and ${thisYear}.`;
+  if (draft.phone.trim().length > 40) return 'Keep the phone number under 40 characters.';
+  const email = draft.email.trim();
+  if (email && !email.includes('@')) return 'That email address needs an @.';
+  if (email.length > 254) return 'That email address is too long.';
   if (draft.notes.trim().length > 1000) return 'Notes run past 1,000 characters.';
   return null;
 }
@@ -64,6 +72,8 @@ function personFields(draft: PersonDraft): Body {
     role: draft.role,
     birth_year: year ? Number(year) : null,
     birth_year_approx: draft.approx,
+    phone: optional(draft.phone),
+    email: optional(draft.email),
     notes: optional(draft.notes),
   };
 }

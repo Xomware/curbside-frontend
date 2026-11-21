@@ -29,6 +29,22 @@
   >
 
   <div class="field">
+    <label for="person-phone">Phone</label>
+    <input id="person-phone" type="tel" formControlName="phone" maxlength="40" autocomplete="off" />
+  </div>
+
+  <div class="field">
+    <label for="person-email">Email</label>
+    <input
+      id="person-email"
+      type="email"
+      formControlName="email"
+      maxlength="254"
+      autocomplete="off"
+    />
+  </div>
+
+  <div class="field">
     <label for="person-notes">Notes</label>
     <textarea id="person-notes" formControlName="notes" rows="3" maxlength="1000"></textarea>
   </div>

@@ -14,6 +14,7 @@ import { age, born, noteDate, talked, talkedToday } from '../../household/format
 import { HouseholdModel } from '../../household/household-model';
 import { SAVE_MESSAGES } from '../../household/messages';
 import { NoteForm } from '../../household/note-form';
+import { PersonContact } from '../../household/person-contact';
 import { PersonForm } from '../../household/person-form';
 import { PetForm } from '../../household/pet-form';
 import { SectionSign } from '../../household/section-sign';
@@ -23,7 +24,7 @@ import { Loading } from '../../ui/loading';
 /** The household card: who lives here, their kids and pets, and what you've noted. */
 @Component({
   selector: 'xom-household-page',
-  imports: [Loading, NoteForm, PersonForm, PetForm, RouterLink, SectionSign],
+  imports: [Loading, NoteForm, PersonContact, PersonForm, PetForm, RouterLink, SectionSign],
   providers: [HouseholdModel],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './household-page.html',
