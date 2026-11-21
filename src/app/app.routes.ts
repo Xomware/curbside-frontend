@@ -17,7 +17,6 @@ import { TermsPage } from './pages/terms/terms';
 import { SettingsPage } from './pages/settings/settings';
 import { Shell } from './pages/shell/shell';
 import { SignInPage } from './pages/sign-in/sign-in';
-import { WelcomePage } from './pages/welcome/welcome';
 
 export const routes: Routes = [
   {
@@ -33,7 +32,13 @@ export const routes: Routes = [
   { path: 'friend/:code', component: FriendInvitePage, title: 'Friend request · Curbside' },
   { path: 'privacy', component: PrivacyPage, title: 'Privacy · Curbside' },
   { path: 'terms', component: TermsPage, title: 'Terms · Curbside' },
-  { path: 'welcome', component: WelcomePage, canActivate: [signedIn], title: 'Welcome · Curbside' },
+  {
+    path: 'welcome',
+    // Once per account: kept out of the initial bundle.
+    loadComponent: () => import('./pages/welcome/welcome').then((m) => m.WelcomePage),
+    canActivate: [signedIn],
+    title: 'Welcome · Curbside',
+  },
   {
     path: '',
     component: Shell,

@@ -15,6 +15,7 @@
             [households]="store.households()"
             [footprints]="store.footprints()"
             [selection]="store.selection()"
+            [home]="store.home()"
             (open)="open($event)"
             (tap)="tap($event)"
             (press)="press($event)"
@@ -61,6 +62,9 @@
           }
 
           @if (!store.selection()) {
+            <p class="hint">
+              Tap a house on the map to see who lives there, or anywhere to add a neighbor.
+            </p>
             <div class="dock">
               <p class="muted">
                 Heard something about a neighbor? Type it, then check what Curbside makes of it.

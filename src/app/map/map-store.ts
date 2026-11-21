@@ -24,6 +24,9 @@ export interface NewPlace {
 
 // Which of the account's streets is open, across tabs and visits. Only the id: nothing about the street itself.
 const CURRENT = 'curbside.map';
+// The household the walkthrough made for you, per street: the map opens on it. The API has no notion of whose
+// house is whose, so this is this browser's memory only.
+const HOMES = 'curbside.homes';
 
 /** footprints_fetch runs after `POST /maps` answers; Overpass usually takes seconds, rarely a minute. */
 const OUTLINE_POLL_MS = 3000;
@@ -38,6 +41,10 @@ export class MapStore {
   private readonly loader = inject(FootprintLoader);
   private readonly geocode = inject(REVERSE_GEOCODE);
   private pending: Promise<void> | null = null;
+  private polling = false;
+  private readonly homeIds = signal<Record<string, string>>(
+    JSON.parse(localStorage.getItem(HOMES) ?? '{}'),
+  );
 
   readonly status = signal<MapStatus>('loading');
   readonly maps = signal<Place[]>([]);
@@ -46,6 +53,11 @@ export class MapStore {
   /** Empty until the file loads, and for good when the place has none; households then stand alone as plaques. */
   readonly footprints = signal<Footprint[]>([]);
   readonly selection = signal<Spot | null>(null);
+  /** Your own household on the open street, if you added it here. */
+  readonly home = computed(() => {
+    const id = this.homeIds()[this.place()?.id ?? ''];
+    return this.households().find((h) => h.id === id) ?? null;
+  });
 
   /** Households in the selected building. Duplexes and apartments put several in one outline. */
   readonly selected = computed(() => {
@@ -101,7 +113,10 @@ export class MapStore {
     void this.awaitOutlines();
   }
 
-  private async awaitOutlines(): Promise<void> {
+  /** Polls the open street until the server has fetched its outlines, then draws them. One poll at a time. */
+  async awaitOutlines(): Promise<void> {
+    if (this.polling) return;
+    this.polling = true;
     try {
       for (let poll = 0; poll < OUTLINE_POLLS; poll++) {
         await new Promise((resolve) => setTimeout(resolve, OUTLINE_POLL_MS));
@@ -114,6 +129,8 @@ export class MapStore {
       // The next page load picks the outlines up.
       console.warn('Outline poll failed', error);
       return;
+    } finally {
+      this.polling = false;
     }
     await this.loadFootprints();
   }
@@ -166,6 +183,13 @@ export class MapStore {
     return created;
   }
 
+  setHome(id: string): void {
+    const place = this.place();
+    if (!place) return;
+    this.homeIds.update((ids) => ({ ...ids, [place.id]: id }));
+    localStorage.setItem(HOMES, JSON.stringify(this.homeIds()));
+  }
+
   household(id: string): Household | undefined {
     return this.households().find((h) => h.id === id);
   }
@@ -178,17 +202,16 @@ export class MapStore {
     );
   }
 
-  /** A tap selects the building under it; accessory buildings and open ground clear the selection. */
+  /**
+   * A tap selects the building under it. Anywhere else, sheds included, drops a pin: on a fresh street there are
+   * no outlines yet, and a tap that did nothing read as a broken map.
+   */
   tap(lat: number, lng: number): Promise<void> {
     const building = buildingAt(this.footprints(), lat, lng);
-    if (!building) {
-      this.selection.set(null);
-      return Promise.resolve();
-    }
-    return this.select({ lat, lng, buildingId: building.id });
+    return this.select({ lat, lng, buildingId: building?.id ?? null });
   }
 
-  /** A long-press drops a pin anywhere: the fallback for houses with no outline. */
+  /** The long-press alias for a pin. */
   drop(lat: number, lng: number): Promise<void> {
     return this.select({ lat, lng, buildingId: null });
   }

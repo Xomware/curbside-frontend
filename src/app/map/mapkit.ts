@@ -14,6 +14,8 @@ export interface MkOverlay {
 export interface MkMap {
   colorScheme: string;
   region: object;
+  setCenterAnimated(center: MkCoordinate, animate: boolean): void;
+  setCameraDistanceAnimated(distance: number, animate: boolean): void;
   overlays: MkOverlay[];
   annotations: object[];
   addOverlays(overlays: MkOverlay[]): void;

@@ -54,7 +54,8 @@ export class MapPage {
       this.adding.set(false);
     });
     void this.store.ensure().then(() => {
-      if (this.store.footprints().length === 0) void this.store.loadFootprints();
+      if (this.store.place()?.footprint.status === 'pending') void this.store.awaitOutlines();
+      else if (this.store.footprints().length === 0) void this.store.loadFootprints();
     });
   }
 

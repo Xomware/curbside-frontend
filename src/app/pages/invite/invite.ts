@@ -5,6 +5,7 @@ import { ApiError } from '../../api/api';
 import { AuthSession } from '../../auth/auth-session';
 import { rememberReturn } from '../../auth/return-to';
 import { MapStore } from '../../map/map-store';
+import { onboarding } from '../../onboarding/onboarding';
 import { InvitePreview, Sharing } from '../../sharing/sharing';
 import { Loading } from '../../ui/loading';
 import { SignInButtons } from '../landing/sign-in-buttons';
@@ -30,6 +31,10 @@ export class InvitePage implements OnInit {
   protected readonly state = signal<'loading' | 'ready' | 'gone' | 'failed'>('loading');
   protected readonly busy = signal(false);
   protected readonly joinFailed = signal(false);
+  /** Mid-walkthrough, the next stop is adding your home, to this street or a new one. */
+  protected readonly next = onboarding.active()
+    ? { path: '/welcome', query: { step: 'home' } }
+    : { path: '/', query: {} };
 
   ngOnInit(): void {
     if (!this.auth.signedIn()) {
@@ -65,7 +70,10 @@ export class InvitePage implements OnInit {
     try {
       const place = await this.sharing.accept(this.code);
       await this.map.open(place.id);
-      await this.router.navigateByUrl('/', { replaceUrl: true });
+      await this.router.navigate([this.next.path], {
+        queryParams: this.next.query,
+        replaceUrl: true,
+      });
     } catch (error) {
       console.error('Invite accept failed', error);
       this.joinFailed.set(true);

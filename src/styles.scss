@@ -154,6 +154,12 @@ a {
   color: var(--ink2);
 }
 
+// The question a walkthrough step asks.
+.lead {
+  font: 800 21px/1.25 var(--font);
+  text-wrap: balance;
+}
+
 .btn {
   --fill: var(--sign-white);
   --text: var(--sign-ink);

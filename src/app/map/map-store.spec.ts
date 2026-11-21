@@ -88,12 +88,12 @@ describe('MapStore', () => {
     expect(store.selected().map((h) => h.id)).toEqual(['a', 'b']);
   });
 
-  it('clears on open ground and accessory buildings; a long-press drops a pin anywhere', async () => {
+  it('drops a pin on open ground and accessory buildings, as a long-press does', async () => {
     await withOutlines();
     await store.tap(40.00005, -74.99995);
 
     await store.tap(40.00205, -74.99995);
-    expect(store.selection()).toBeNull();
+    expect(store.selection()).toMatchObject({ lat: 40.00205, buildingId: null });
 
     await store.drop(40.1, -75.1);
     expect(store.selection()).toMatchObject({ buildingId: null, address: '11 Quillfeather Ln' });
@@ -111,6 +111,17 @@ describe('MapStore', () => {
     await first;
 
     expect(store.selection()).toMatchObject({ lat: 40.1, address: '11 Quillfeather Ln' });
+  });
+
+  it('remembers your own household per street, across reloads', async () => {
+    localStorage.clear();
+    await loaded();
+    expect(store.home()).toBeNull();
+
+    store.setHome('b');
+
+    expect(store.home()?.id).toBe('b');
+    expect(JSON.parse(localStorage.getItem('curbside.homes') ?? '{}')).toEqual({ map1: 'b' });
   });
 
   it('upserts a household and refreshes from the map', async () => {

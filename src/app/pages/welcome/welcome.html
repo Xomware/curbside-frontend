@@ -1,35 +1,57 @@
 <main class="page">
-  <h1 class="sign">New here</h1>
+  <div class="progress">
+    <p class="eyebrow">Step {{ index() + 1 }} of {{ steps.length }}</p>
+    <ol aria-hidden="true">
+      @for (s of steps; track s.id) {
+        <li [class.done]="$index <= index()"></li>
+      }
+    </ol>
+  </div>
+  <h1 class="sign">{{ steps[index()].title }}</h1>
 
-  <form class="stack" (submit)="$event.preventDefault(); create()">
-    <p>Pick a display name. Only people on maps you share can see it.</p>
-    <div class="field">
-      <label for="display-name">Display name</label>
-      <input
-        id="display-name"
-        autocomplete="nickname"
-        maxlength="80"
-        [formControl]="name"
-        [attr.aria-describedby]="error() ? 'welcome-error' : null"
-      />
-    </div>
-    @if (error(); as message) {
-      <p id="welcome-error" class="notice" role="alert">{{ message }}</p>
+  @switch (step()) {
+    @case ('home') {
+      <xom-home-step (done)="homeDone($event)" />
     }
-    <button class="btn btn--green" type="submit" [disabled]="name.invalid || busy()">
-      {{ busy() ? 'Saving…' : 'Start mapping' }}
-    </button>
-  </form>
-
-  <section class="stack" aria-labelledby="link-heading">
-    <h2 id="link-heading" class="eyebrow">Already use Curbside?</h2>
-    <p>Sign in the way you did before and this sign-in joins that account.</p>
-    @for (provider of providers; track provider) {
-      <button [xomProvider]="provider" [disabled]="busy()" (click)="link(provider)"></button>
+    @case ('people') {
+      <xom-people-step [household]="household()!" (done)="afterPeople()" />
     }
-  </section>
+    @case ('tour') {
+      <xom-tour (done)="finish()" />
+    }
+    @default {
+      <form class="stack" (submit)="$event.preventDefault(); create()">
+        <p class="lead">What should neighbors call you?</p>
+        <p>Only people on streets you share can see it.</p>
+        <div class="field">
+          <label for="display-name">Display name</label>
+          <input
+            id="display-name"
+            autocomplete="nickname"
+            maxlength="80"
+            [formControl]="name"
+            [attr.aria-describedby]="error() ? 'welcome-error' : null"
+          />
+        </div>
+        @if (error(); as message) {
+          <p id="welcome-error" class="notice" role="alert">{{ message }}</p>
+        }
+        <button class="btn btn--green" type="submit" [disabled]="name.invalid || busy()">
+          {{ busy() ? 'Saving…' : 'Next' }}
+        </button>
+      </form>
 
-  <button class="btn-text" type="button" [disabled]="busy()" (click)="useAnother()">
-    Use a different sign-in
-  </button>
+      <section class="stack" aria-labelledby="link-heading">
+        <h2 id="link-heading" class="eyebrow">Already use Curbside?</h2>
+        <p>Sign in the way you did before and this sign-in joins that account.</p>
+        @for (provider of providers; track provider) {
+          <button [xomProvider]="provider" [disabled]="busy()" (click)="link(provider)"></button>
+        }
+      </section>
+
+      <button class="btn-text" type="button" [disabled]="busy()" (click)="useAnother()">
+        Use a different sign-in
+      </button>
+    }
+  }
 </main>
