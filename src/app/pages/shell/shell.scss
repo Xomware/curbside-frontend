@@ -29,6 +29,19 @@ nav {
 a.btn-text {
   display: inline-flex;
   align-items: center;
+  gap: 6px;
+}
+
+// Stop-sign red, white rule: the unread count.
+.badge {
+  min-width: 20px;
+  padding: 3px 5px 1px;
+  border-radius: 10px;
+  background: var(--stop);
+  color: var(--sign-white);
+  font: 900 11px/1.2 var(--font);
+  text-align: center;
+  box-shadow: inset 0 0 0 1.5px var(--sign-white);
 }
 
 .current {

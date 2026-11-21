@@ -63,6 +63,7 @@ export class Api {
       headers,
       body: body === undefined ? undefined : JSON.stringify(body),
     });
+    if (response.status === 204) return undefined as T;
     const envelope = (await response.json().catch(() => ({}))) as Envelope<T>;
     if (!response.ok) {
       const message = envelope.error?.message ?? envelope.message ?? response.statusText;

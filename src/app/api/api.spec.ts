@@ -30,6 +30,12 @@ describe('Api', () => {
     expect(init.headers.Authorization).toBe(`Bearer ${auth.accessToken()}`);
   });
 
+  it('takes a 204 as success with nothing to unwrap', async () => {
+    fetchMock.mockResolvedValue(new Response(null, { status: 204 }));
+
+    expect(await api.request('POST', '/activity/seen')).toBeUndefined();
+  });
+
   it('surfaces the envelope error code', async () => {
     fetchMock.mockResolvedValue(
       json(404, { data: null, error: { code: 'needs_onboarding', message: 'No account' } }),

@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 
 import { signedIn, signedOut, signedOutMatch } from './auth/guards';
+import { ActivityPage } from './pages/activity/activity';
 import { CallbackPage } from './pages/callback/callback';
 import { CapturePage } from './pages/capture/capture-page';
 import { HouseholdPage } from './pages/household/household-page';
@@ -35,6 +36,7 @@ export const routes: Routes = [
       { path: '', component: MapPage, title: 'Curbside' },
       { path: 'households/:id', component: HouseholdPage, title: 'Household · Curbside' },
       { path: 'capture', component: CapturePage, title: 'Talk · Curbside' },
+      { path: 'activity', component: ActivityPage, title: 'Activity · Curbside' },
       { path: 'profile', component: ProfilePage, title: 'Profile · Curbside' },
       { path: 'settings', component: SettingsPage, title: 'Settings · Curbside' },
     ],

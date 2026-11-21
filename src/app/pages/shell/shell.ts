@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, OnInit, effect, inject } from '@ang
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
 import { AccountStore } from '../../account/account-store';
+import { ActivityStore } from '../../activity/activity-store';
 import { AuthSession } from '../../auth/auth-session';
 import { Loading } from '../../ui/loading';
 
@@ -17,6 +18,7 @@ export class Shell implements OnInit {
   private readonly auth = inject(AuthSession);
   private readonly router = inject(Router);
   protected readonly store = inject(AccountStore);
+  protected readonly activity = inject(ActivityStore);
 
   constructor() {
     effect(() => {
@@ -27,5 +29,6 @@ export class Shell implements OnInit {
 
   ngOnInit(): void {
     void this.store.load();
+    void this.activity.load();
   }
 }
