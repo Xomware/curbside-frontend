@@ -15,6 +15,10 @@ header {
   font: 900 14px/1 var(--font);
   letter-spacing: 0.32em;
   text-decoration: none;
+
+  @media (max-width: 430px) {
+    letter-spacing: 0.2em;
+  }
 }
 
 .frame ::ng-deep .page {
@@ -24,12 +28,21 @@ header {
 nav {
   display: flex;
   gap: var(--space-1);
+
+  @media (max-width: 430px) {
+    gap: 0;
+  }
 }
 
 a.btn-text {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+
+  // Four links and a badge beside the wordmark on a 390px phone.
+  @media (max-width: 430px) {
+    padding-inline: 5px;
+  }
 }
 
 // Stop-sign red, white rule: the unread count.

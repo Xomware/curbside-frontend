@@ -1,7 +1,8 @@
 import { Routes } from '@angular/router';
 
-import { signedIn, signedOut, signedOutMatch } from './auth/guards';
+import { admin, signedIn, signedOut, signedOutMatch } from './auth/guards';
 import { ActivityPage } from './pages/activity/activity';
+import { AdminPage } from './pages/admin/admin';
 import { CallbackPage } from './pages/callback/callback';
 import { CapturePage } from './pages/capture/capture-page';
 import { FriendInvitePage } from './pages/friend-invite/friend-invite';
@@ -42,6 +43,7 @@ export const routes: Routes = [
       { path: 'activity', component: ActivityPage, title: 'Activity · Curbside' },
       { path: 'friends', component: FriendsPage, title: 'Friends · Curbside' },
       { path: 'profile', component: ProfilePage, title: 'Profile · Curbside' },
+      { path: 'admin', component: AdminPage, canActivate: [admin], title: 'Admin · Curbside' },
       { path: 'settings', component: SettingsPage, title: 'Settings · Curbside' },
     ],
   },

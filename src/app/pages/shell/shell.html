@@ -28,6 +28,15 @@
         ariaCurrentWhenActive="page"
         >Profile</a
       >
+      @if (store.account()?.is_admin) {
+        <a
+          class="btn-text"
+          routerLink="/admin"
+          routerLinkActive="current"
+          ariaCurrentWhenActive="page"
+          >Admin</a
+        >
+      }
     </nav>
   </header>
 

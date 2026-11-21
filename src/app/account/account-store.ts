@@ -13,6 +13,7 @@ export interface Account {
   display_name: string;
   created_at: string;
   identities: Identity[];
+  is_admin?: boolean;
 }
 
 export interface DeleteResult {
