@@ -1,0 +1,95 @@
+<main class="friends">
+  <h1 class="sign">Friends</h1>
+  <p class="muted">
+    Friends can put each other on a street straight away, without an invite link. Accepting a street
+    invite makes you friends with whoever sent it.
+  </p>
+
+  <p class="sr-only" role="status">{{ status() }}</p>
+  @if (error(); as message) {
+    <p class="notice" role="alert">{{ message }}</p>
+  }
+
+  @if (list(); as friends) {
+    @if (friends.length) {
+      <ul class="list">
+        @for (f of friends; track f.account_id) {
+          <li>
+            <div class="who">
+              <strong>{{ f.display_name }}</strong>
+              @if (removing() === f.account_id) {
+                <span class="muted">They stay on any street you share.</span>
+              } @else {
+                <span class="muted">Friends since {{ since(f.since) }}</span>
+              }
+              @if (f.shared_maps.length) {
+                <span class="streets">
+                  @for (m of f.shared_maps; track m.map_id) {
+                    <button class="plaque" type="button" (click)="openStreet(m.map_id)">
+                      <span class="plaque__name">{{ m.name }}</span>
+                    </button>
+                  }
+                </span>
+              }
+            </div>
+            @if (removing() === f.account_id) {
+              <span class="confirm">
+                <button
+                  class="btn-text danger"
+                  type="button"
+                  [disabled]="busy()"
+                  [attr.aria-label]="'Remove ' + f.display_name + ' for good'"
+                  (click)="remove(f)"
+                >
+                  Remove for good
+                </button>
+                <button class="btn-text" type="button" (click)="removing.set(null)">Keep</button>
+              </span>
+            } @else {
+              <button
+                class="btn-text"
+                type="button"
+                [disabled]="busy()"
+                [attr.aria-label]="'Remove ' + f.display_name"
+                (click)="removing.set(f.account_id)"
+              >
+                Remove
+              </button>
+            }
+          </li>
+        }
+      </ul>
+    } @else {
+      <p>No friends yet. Send someone your friend link.</p>
+    }
+  } @else if (failed()) {
+    <p class="notice" role="alert">Couldn't load your friends.</p>
+    <button class="btn" type="button" (click)="load()">Try again</button>
+  } @else {
+    <xom-loading label="Finding your friends" />
+  }
+
+  <section aria-labelledby="link-heading">
+    <h2 id="link-heading" class="eyebrow">Friend link</h2>
+    @if (invite(); as inv) {
+      <div class="invite">
+        <label for="friend-link">Your friend link</label>
+        <input #link id="friend-link" readonly [value]="url(inv.code)" (focus)="link.select()" />
+        <div class="invite__actions">
+          <button class="btn btn--green" type="button" (click)="copy(inv.code)">
+            {{ copied() ? 'Copied' : 'Copy link' }}
+          </button>
+          @if (canShare) {
+            <button class="btn" type="button" (click)="share(inv.code)">Share</button>
+          }
+        </div>
+        <p class="muted detail">Works once, until {{ date(inv.expires_at) }}.</p>
+      </div>
+    } @else {
+      <p>Send it to a neighbor. When they open it and sign in, you're friends.</p>
+      <button class="btn" type="button" [disabled]="busy()" (click)="makeInvite()">
+        Make a friend link
+      </button>
+    }
+  </section>
+</main>

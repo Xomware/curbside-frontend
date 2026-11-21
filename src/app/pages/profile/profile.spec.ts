@@ -56,6 +56,19 @@ describe('ProfilePage', () => {
           'POST /maps/map1/invites': [
             json(201, { data: { code: 'K7QW2M9XRT', expires_at: '2026-11-27T12:00:00Z' } }),
           ],
+          'GET /friends': [
+            json(200, {
+              data: [
+                { account_id: 'b', display_name: 'Sam Rivera', since: '', shared_maps: [] },
+                { account_id: 'c', display_name: 'Ida Moss', since: '', shared_maps: [] },
+              ],
+            }),
+          ],
+          'POST /maps/map1/members': [
+            json(201, {
+              data: { account_id: 'c', display_name: 'Ida Moss', role: 'member', created_at: '' },
+            }),
+          ],
           'PATCH /me': [
             json(200, {
               data: { account_id: 'a', display_name: 'Dominick', created_at: '', identities: [] },
@@ -116,5 +129,32 @@ describe('ProfilePage', () => {
     input.dispatchEvent(new Event('input'));
     button('Save')?.click();
     await settle(() => expect(el.querySelector('h1')?.textContent).toBe('Dominick'));
+  });
+
+  it('adds a friend who is not on the street yet', async () => {
+    const harness = await RouterTestingHarness.create('/profile');
+    const el = harness.routeNativeElement as HTMLElement;
+    const button = (text: string) =>
+      [...el.querySelectorAll('button')].find((b) => b.textContent?.trim() === text);
+    const settle = (check: () => void) =>
+      vi.waitFor(() => {
+        harness.detectChanges();
+        check();
+      });
+    await settle(() => expect(button('Add a friend')).toBeDefined());
+
+    button('Add a friend')?.click();
+    await settle(() => expect(el.querySelector('[aria-label="Add Ida Moss"]')).not.toBeNull());
+    expect(el.querySelector('[aria-label="Add Sam Rivera"]')).toBeNull();
+
+    el.querySelector<HTMLButtonElement>('[aria-label="Add Ida Moss"]')!.click();
+    await settle(() => expect(el.querySelector('.members')?.textContent).toContain('Ida Moss'));
+    expect(el.textContent).toContain('Every friend of yours is already on this street.');
+    const post = vi
+      .mocked(fetch)
+      .mock.calls.find(
+        ([url, init]) => init?.method === 'POST' && String(url).endsWith('/members'),
+      );
+    expect(JSON.parse(String(post?.[1]?.body))).toEqual({ account_id: 'c' });
   });
 });

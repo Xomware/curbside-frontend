@@ -32,6 +32,41 @@
     <p class="notice" role="alert">{{ message }}</p>
   }
 
+  @if (members()) {
+    @if (!picking()) {
+      <button class="btn-text" type="button" [disabled]="busy()" (click)="pickFriend()">
+        Add a friend
+      </button>
+    } @else {
+      <div class="pick">
+        <h3 class="eyebrow">Add a friend to {{ place().name }}</h3>
+        @for (f of addable(); track f.account_id) {
+          <div class="pick__row">
+            <strong>{{ f.display_name }}</strong>
+            <button
+              class="btn btn--green"
+              type="button"
+              [disabled]="busy()"
+              [attr.aria-label]="'Add ' + f.display_name"
+              (click)="addFriend(f)"
+            >
+              Add
+            </button>
+          </div>
+        } @empty {
+          <p class="muted">
+            @if (friends()?.length) {
+              Every friend of yours is already on this street.
+            } @else {
+              No friends yet. <a routerLink="/friends">Send a friend link</a> first.
+            }
+          </p>
+        }
+        <button class="btn-text" type="button" (click)="picking.set(false)">Done</button>
+      </div>
+    }
+  }
+
   @if (place().role === 'owner') {
     @if (invite(); as inv) {
       <div class="invite">

@@ -1,12 +1,26 @@
-import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  signal,
+} from '@angular/core';
+import { RouterLink } from '@angular/router';
 
+import { Friend, Friends } from '../friends/friends';
 import { MapStore } from '../map/map-store';
 import { Place } from '../map/models';
-import { Invite, Member, Sharing, inviteUrl } from './sharing';
+import { Invite, Member, Sharing, inviteUrl, shareLink } from './sharing';
 
-/** Who's on a street. The owner makes single-use invite links and removes people; a member can leave. */
+/**
+ * Who's on a street. The owner makes single-use invite links and removes people; a member can leave. Anyone on it
+ * can add a friend directly.
+ */
 @Component({
   selector: 'xom-street-sharing',
+  imports: [RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './street-sharing.html',
   styleUrl: './street-sharing.scss',
@@ -14,6 +28,7 @@ import { Invite, Member, Sharing, inviteUrl } from './sharing';
 export class StreetSharing {
   private readonly sharing = inject(Sharing);
   private readonly map = inject(MapStore);
+  private readonly friendsApi = inject(Friends);
 
   readonly place = input.required<Place>();
   readonly accountId = input.required<string>();
@@ -24,6 +39,13 @@ export class StreetSharing {
   protected readonly busy = signal(false);
   protected readonly error = signal<string | null>(null);
   protected readonly confirmLeave = signal(false);
+  /** Null until "Add a friend" opens the picker. */
+  protected readonly friends = signal<Friend[] | null>(null);
+  protected readonly picking = signal(false);
+  protected readonly addable = computed(() => {
+    const on = new Set(this.members()?.map((m) => m.account_id));
+    return (this.friends() ?? []).filter((f) => !on.has(f.account_id));
+  });
   protected readonly canShare = typeof navigator.share === 'function';
   protected readonly url = inviteUrl;
 
@@ -31,6 +53,7 @@ export class StreetSharing {
     effect(() => {
       const id = this.place().id;
       this.invite.set(null);
+      this.picking.set(false);
       void this.load(id);
     });
   }
@@ -58,17 +81,24 @@ export class StreetSharing {
     this.copied.set(true);
   }
 
-  protected async share(code: string): Promise<void> {
-    try {
-      await navigator.share({
-        title: 'Curbside',
-        text: `Join ${this.place().name} on Curbside`,
-        url: inviteUrl(code),
-      });
-    } catch (error) {
-      // Closing the share sheet rejects with AbortError; that's a choice, not a failure.
-      if (!(error instanceof DOMException && error.name === 'AbortError')) throw error;
-    }
+  protected share(code: string): Promise<void> {
+    return shareLink(`Join ${this.place().name} on Curbside`, inviteUrl(code));
+  }
+
+  protected async pickFriend(): Promise<void> {
+    await this.run(async () => {
+      this.friends.set(await this.friendsApi.list());
+      this.picking.set(true);
+    }, "Couldn't load your friends.");
+  }
+
+  protected async addFriend(friend: Friend): Promise<void> {
+    await this.run(async () => {
+      const member = await this.sharing.add(this.place().id, friend.account_id);
+      this.members.update((all) =>
+        all?.some((m) => m.account_id === member.account_id) ? all : [...(all ?? []), member],
+      );
+    }, `Couldn't add ${friend.display_name}.`);
   }
 
   protected async remove(member: Member): Promise<void> {

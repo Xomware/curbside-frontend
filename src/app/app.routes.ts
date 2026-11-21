@@ -4,6 +4,8 @@ import { signedIn, signedOut, signedOutMatch } from './auth/guards';
 import { ActivityPage } from './pages/activity/activity';
 import { CallbackPage } from './pages/callback/callback';
 import { CapturePage } from './pages/capture/capture-page';
+import { FriendInvitePage } from './pages/friend-invite/friend-invite';
+import { FriendsPage } from './pages/friends/friends';
 import { HouseholdPage } from './pages/household/household-page';
 import { InvitePage } from './pages/invite/invite';
 import { LandingPage } from './pages/landing/landing';
@@ -26,6 +28,7 @@ export const routes: Routes = [
   { path: 'sign-in', component: SignInPage, canActivate: [signedOut], title: 'Sign in · Curbside' },
   { path: 'auth/callback', component: CallbackPage, title: 'Signing in · Curbside' },
   { path: 'invite/:code', component: InvitePage, title: 'Invite · Curbside' },
+  { path: 'friend/:code', component: FriendInvitePage, title: 'Friend request · Curbside' },
   { path: 'privacy', component: PrivacyPage, title: 'Privacy · Curbside' },
   { path: 'welcome', component: WelcomePage, canActivate: [signedIn], title: 'Welcome · Curbside' },
   {
@@ -37,6 +40,7 @@ export const routes: Routes = [
       { path: 'households/:id', component: HouseholdPage, title: 'Household · Curbside' },
       { path: 'capture', component: CapturePage, title: 'Talk · Curbside' },
       { path: 'activity', component: ActivityPage, title: 'Activity · Curbside' },
+      { path: 'friends', component: FriendsPage, title: 'Friends · Curbside' },
       { path: 'profile', component: ProfilePage, title: 'Profile · Curbside' },
       { path: 'settings', component: SettingsPage, title: 'Settings · Curbside' },
     ],

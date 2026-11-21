@@ -1,0 +1,52 @@
+@if (!auth.signedIn()) {
+  <main class="page">
+    <h1 class="sign">Friend request</h1>
+    <p>Someone wants to be friends on Curbside. Sign in to see who and say yes.</p>
+    <xom-sign-in-buttons />
+  </main>
+} @else {
+  @switch (state()) {
+    @case ('ready') {
+      @if (invite(); as inv) {
+        <main class="page">
+          <p class="eyebrow">Friend request from</p>
+          <h1 class="sign">{{ inv.inviter.display_name }}</h1>
+          <p>
+            Friends can put each other on a street without an invite link. Nobody sees your streets
+            until you share one.
+          </p>
+          @if (acceptFailed()) {
+            <p class="notice" role="alert">Couldn't add them. Try again.</p>
+          }
+          <button class="btn btn--green" type="button" [disabled]="busy()" (click)="accept()">
+            {{ busy() ? 'Adding…' : 'Be friends' }}
+          </button>
+          <a class="btn-text" routerLink="/">Not now</a>
+        </main>
+      }
+    }
+    @case ('own') {
+      <main class="page">
+        <h1 class="sign">That's your link</h1>
+        <p>Send it to a neighbor. When they open it, you'll be friends.</p>
+        <a class="btn" routerLink="/friends">Go to friends</a>
+      </main>
+    }
+    @case ('gone') {
+      <main class="page">
+        <h1 class="sign">Link used up</h1>
+        <p>This friend link was already used or has expired. Ask for a new one.</p>
+        <a class="btn" routerLink="/">Go to Curbside</a>
+      </main>
+    }
+    @case ('failed') {
+      <main class="page">
+        <p class="notice" role="alert">Couldn't open this friend link.</p>
+        <button class="btn" type="button" (click)="load()">Try again</button>
+      </main>
+    }
+    @default {
+      <xom-loading label="Opening your friend link" />
+    }
+  }
+}

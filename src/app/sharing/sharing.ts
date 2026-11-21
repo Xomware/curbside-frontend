@@ -34,6 +34,11 @@ export class Sharing {
     return this.api.request('POST', `/maps/${mapId}/invites`);
   }
 
+  /** Puts a friend straight on the street; 200 with the existing member if they're already on it. */
+  add(mapId: string, accountId: string): Promise<Member> {
+    return this.api.request('POST', `/maps/${mapId}/members`, { account_id: accountId });
+  }
+
   remove(mapId: string, accountId: string): Promise<unknown> {
     return this.api.request('DELETE', `/maps/${mapId}/members/${accountId}`);
   }
@@ -49,4 +54,14 @@ export class Sharing {
 
 export function inviteUrl(code: string): string {
   return `${location.origin}/invite/${code}`;
+}
+
+/** The system share sheet. */
+export async function shareLink(text: string, url: string): Promise<void> {
+  try {
+    await navigator.share({ title: 'Curbside', text, url });
+  } catch (error) {
+    // Closing the share sheet rejects with AbortError; that's a choice, not a failure.
+    if (!(error instanceof DOMException && error.name === 'AbortError')) throw error;
+  }
 }
