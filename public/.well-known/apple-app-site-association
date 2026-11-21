@@ -3,7 +3,10 @@
     "details": [
       {
         "appIDs": ["A3HMLDS2AL.com.Xomware.Curbside"],
-        "components": [{ "/": "/invite/*", "comment": "Street invite links open the app" }]
+        "components": [
+          { "/": "/invite/*", "comment": "Street invite links open the app" },
+          { "/": "/friend/*", "comment": "Friend links open the app" }
+        ]
       }
     ]
   }

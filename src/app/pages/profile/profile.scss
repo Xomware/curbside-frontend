@@ -129,6 +129,12 @@ section {
   border-top: 2px solid var(--rule);
 }
 
+.friends-link {
+  align-self: flex-start;
+  width: auto;
+  padding-inline: var(--space-4);
+}
+
 .actions .btn {
   width: auto;
   padding-inline: var(--space-4);
