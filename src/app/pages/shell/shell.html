@@ -12,6 +12,17 @@
       >
       <a
         class="btn-text"
+        routerLink="/activity"
+        routerLinkActive="current"
+        ariaCurrentWhenActive="page"
+        >Activity
+        @if (activity.unread(); as n) {
+          <span class="badge" aria-hidden="true">{{ n > 9 ? '9+' : n }}</span>
+          <span class="sr-only">, {{ n }} new</span>
+        }
+      </a>
+      <a
+        class="btn-text"
         routerLink="/profile"
         routerLinkActive="current"
         ariaCurrentWhenActive="page"

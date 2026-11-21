@@ -1,0 +1,48 @@
+<main class="activity">
+  <h1 class="sign">Activity</h1>
+
+  @if (store.items(); as items) {
+    @if (items.length) {
+      <ol class="feed">
+        @for (item of items; track item.id; let i = $index) {
+          <li [class.new]="i < fresh()">
+            @if (opensStreet(item)) {
+              <button class="row" type="button" (click)="open(item)">
+                <span class="what">
+                  @if (i < fresh()) {
+                    <span class="tag">New</span>
+                  }
+                  {{ text(item) }}
+                </span>
+                <time [attr.datetime]="item.created_at">{{ ago(item.created_at) }}</time>
+                <svg width="8" height="13" viewBox="0 0 12 20" aria-hidden="true">
+                  <path d="M2 2l8 8-8 8" fill="none" stroke="currentColor" stroke-width="2.4" />
+                </svg>
+              </button>
+            } @else {
+              <div class="row">
+                <span class="what">
+                  @if (i < fresh()) {
+                    <span class="tag">New</span>
+                  }
+                  {{ text(item) }}
+                </span>
+                <time [attr.datetime]="item.created_at">{{ ago(item.created_at) }}</time>
+              </div>
+            }
+          </li>
+        }
+      </ol>
+    } @else {
+      <p class="muted">
+        Nothing yet. When someone joins one of your streets, adds a household or becomes your
+        friend, it shows up here.
+      </p>
+    }
+  } @else if (store.failed()) {
+    <p class="notice" role="alert">Couldn't load your activity.</p>
+    <button class="btn" type="button" (click)="load()">Try again</button>
+  } @else {
+    <xom-loading label="Checking the street" />
+  }
+</main>
